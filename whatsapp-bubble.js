@@ -25,6 +25,12 @@
    * 1. Read configuration
    * ----------------------------------------------------------- */
   var scriptEl = document.currentScript;
+
+  /* Destroy previous instance if exists */
+  if (window.WhatsAppBubble && window.WhatsAppBubble.destroy) {
+    window.WhatsAppBubble.destroy();
+  }
+
   var cfg = {
     phone:             scriptEl?.getAttribute('data-phone')             || '573001234567',
     name:              scriptEl?.getAttribute('data-name')              || 'Soporte',
@@ -46,6 +52,7 @@
     ariaLabelOpen:     scriptEl?.getAttribute('data-aria-open')         || 'Abrir chat',
     ariaLabelClose:    scriptEl?.getAttribute('data-aria-close')        || 'Cerrar chat',
     fontFamily:        scriptEl?.getAttribute('data-font-family')       || '',
+    triggerId:         scriptEl?.getAttribute('data-trigger-id')        || '',
   };
 
   /* Auto-detect site font */
@@ -684,7 +691,7 @@
 
   /* --- Scroll trigger: only fires AFTER user has scrolled at least once --- */
   function watchTrigger() {
-    var triggerId = scriptEl?.getAttribute('data-trigger-id');
+    var triggerId = cfg.triggerId || scriptEl?.getAttribute('data-trigger-id');
     if (!triggerId) return;
     var trigger = document.getElementById(triggerId);
     if (!trigger) return;
@@ -733,4 +740,29 @@
   } else {
     watchTrigger();
   }
+
+  /* -----------------------------------------------------------
+   * 9. Public API
+   * ----------------------------------------------------------- */
+  window.WhatsAppBubble = {
+    destroy: function () {
+      if (root && root.parentNode) root.parentNode.removeChild(root);
+      if (styleEl && styleEl.parentNode) styleEl.parentNode.removeChild(styleEl);
+      state = { open: false, teaserVisible: false };
+    },
+    update: function (newCfg) {
+      this.destroy();
+      var keys = Object.keys(newCfg);
+      for (var i = 0; i < keys.length; i++) {
+        cfg[keys[i]] = newCfg[keys[i]];
+      }
+      bubbleIconSvg = resolveIcon(cfg.bubbleIcon);
+      buildPanel(); buildTeaser(); buildBubble();
+      container.appendChild(panelEl);
+      container.appendChild(teaserEl);
+      container.appendChild(bubbleEl);
+      document.body.appendChild(root);
+      watchTrigger();
+    },
+  };
 })();

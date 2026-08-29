@@ -362,7 +362,6 @@
   });
 
   var bubbleScript = null;
-  var currentStyle = null;
 
   function getConfig() {
     return {
@@ -385,42 +384,38 @@
 
   function rebuild() {
     var c = getConfig();
-    var root = document.getElementById('preview-root');
 
-    /* Remove old plugin elements */
-    root.querySelectorAll('.wa-root').forEach(function(el){el.remove()});
+    /* First time: inject script tag */
+    if (!bubbleScript) {
+      var s = document.createElement('script');
+      s.src = 'whatsapp-bubble.js';
+      bubbleScript = s;
+      document.body.appendChild(s);
+      /* Wait for script to load, then do first update */
+      s.onload = function () { rebuild(); };
+      return;
+    }
 
-    /* Inject plugin */
-    if (bubbleScript) bubbleScript.remove();
-    if (currentStyle) currentStyle.remove();
-
-    /* Build minimal inline version for preview */
-    var iframe = document.createElement('div');
-    iframe.id = 'bubble-mount-preview';
-    root.appendChild(iframe);
-
-    /* Create script tag with data attrs */
-    var s = document.createElement('script');
-    s.src = 'whatsapp-bubble.js';
-    s.dataset.phone = c.phone;
-    s.dataset.name = c.name;
-    if (c.avatar) s.dataset.avatar = c.avatar;
-    s.dataset.color = c.color;
-    s.dataset.bubbleIcon = c.icon;
-    s.dataset.bubbleSize = c.size;
-    s.dataset.greeting = c.greeting;
-    s.dataset.defaultMessage = c.defaultMessage;
-    s.dataset.teaser = c.teaser;
-    s.dataset.teaserSubtitle = c.teaserSub;
-    s.dataset.position = c.position;
-    s.dataset.dismiss = c.dismiss;
-    s.dataset.sound = c.sound;
-    if (c.trigger) s.dataset.triggerId = c.trigger;
-    s.dataset.panelWidth = '320';
-
-    /* Append to preview frame, not body */
-    root.appendChild(s);
-    bubbleScript = s;
+    /* Subsequent times: update existing instance in-place */
+    if (window.WhatsAppBubble && window.WhatsAppBubble.update) {
+      window.WhatsAppBubble.update({
+        phone:          c.phone,
+        name:           c.name,
+        avatar:         c.avatar,
+        color:          c.color,
+        bubbleIcon:     c.icon,
+        bubbleSize:     c.size,
+        greeting:       c.greeting,
+        defaultMessage: c.defaultMessage,
+        teaserText:     c.teaser,
+        teaserSubtitle: c.teaserSub,
+        position:       c.position,
+        dismiss:        c.dismiss,
+        sound:          c.sound,
+        panelWidth:     '320',
+        triggerId:      c.trigger || '',
+      });
+    }
 
     updateCode(c);
   }

@@ -4,20 +4,30 @@ Plugin vanilla JavaScript para un widget de chat de WhatsApp. Sin dependencias, 
 
 ## Instalación
 
-### Opción 1 – GitHub como CDN (recomendado)
+### Opción 1 – jsDelivr CDN (recomendado)
 
 ```html
-<script src="https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.js"
+<script src="https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js"
   data-phone="573001234567"
   data-name="Mi Empresa"
   data-color="#25D366"
 ></script>
 ```
 
-### Opción 2 – Descarga local
+### Opción 2 – GitHub raw CDN
 
-1. Descarga `whatsapp-bubble.js`
-2. Colócalo en tu servidor (ej: `/js/whatsapp-bubble.js`)
+```html
+<script src="https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.min.js"
+  data-phone="573001234567"
+  data-name="Mi Empresa"
+  data-color="#25D366"
+></script>
+```
+
+### Opción 3 – Descarga local
+
+1. Descarga `whatsapp-bubble.min.js` (o `whatsapp-bubble.js` para desarrollo)
+2. Colócalo en tu servidor (ej: `/js/whatsapp-bubble.min.js`)
 3. Referéncialo en tu HTML
 
 ## Uso básico
@@ -217,6 +227,35 @@ Puedes tener varios bubbles en la misma página, cada uno con su propia configur
 - **Reduced motion**: Desactiva animaciones si el usuario prefiere movimiento reducido.
 - **Fuente heredada**: Detecta la `font-family` del sitio automáticamente.
 - **Sin dependencias**: JavaScript vanilla puro. Zero librerías externas.
+- **Dark mode**: Se adapta automáticamente a `prefers-color-scheme: dark`.
+- **Sonidos**: 5 sonidos via Web Audio API (sin archivos externos). Solo suenan después del primer gesto del usuario (política de autoplay del navegador).
+
+## CDN & GitHub Actions
+
+### Minificación automática
+
+Un GitHub Action (`minify.yml`) se ejecuta cada vez que se modifica `whatsapp-bubble.js` en `main`. Genera automáticamente `whatsapp-bubble.min.js` y lo commitea al repositorio.
+
+### Uso como CDN
+
+**jsDelivr** (recomendado, incluye cache global):
+```
+https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js
+```
+
+**GitHub raw**:
+```
+https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.min.js
+```
+
+**Ventaja**: Todo el plugin está en un solo archivo autocontenido. Los sonidos se generan via Web Audio API (osciladores), no requiere archivos externos. No hay CORS issues.
+
+### Versionado
+
+Para fijar una versión específica, usa tags de git:
+```
+https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@v1.0.0/whatsapp-bubble.min.js
+```
 
 ## Licencia
 

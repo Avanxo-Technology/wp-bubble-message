@@ -108,24 +108,21 @@
   var audioUnlocked = false;
 
   function getAudioCtx() {
-    if (!audioCtx) {
-      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { /* noop */ }
-    }
     return audioCtx;
   }
 
   function unlockAudio() {
     if (audioUnlocked) return;
-    var ctx = getAudioCtx();
-    if (!ctx) return;
-    if (ctx.state === 'suspended') {
-      ctx.resume().then(function () { audioUnlocked = true; });
-    } else {
-      audioUnlocked = true;
-    }
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(function () { audioUnlocked = true; });
+      } else {
+        audioUnlocked = true;
+      }
+    } catch (e) { /* noop */ }
   }
 
-  /* Unlock on first real user gesture (scroll does NOT count per Chrome autoplay policy) */
   ['click', 'touchstart', 'keydown', 'pointerdown'].forEach(function (evt) {
     document.addEventListener(evt, unlockAudio, { once: true, passive: true });
   });
@@ -192,12 +189,8 @@
   };
 
   function playSound() {
-    if (cfg.sound === 'none' || !SOUNDS[cfg.sound]) return;
-    try {
-      var ctx = getAudioCtx();
-      if (!ctx || ctx.state === 'suspended') return;
-      SOUNDS[cfg.sound]();
-    } catch (e) { /* noop */ }
+    if (!audioUnlocked || cfg.sound === 'none' || !SOUNDS[cfg.sound]) return;
+    try { SOUNDS[cfg.sound](); } catch (e) { /* noop */ }
   }
 
   /* -----------------------------------------------------------

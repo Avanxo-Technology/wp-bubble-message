@@ -289,6 +289,17 @@
       0%, 100% { opacity: 1; }
       50% { opacity: .5; }
     }
+    .wa-header-actions {
+      display: flex; align-items: center; gap: 2px;
+    }
+    .wa-action-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 50%;
+      color: #64748b; cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .wa-action-btn:hover { background: #f1f5f9; color: var(--wa-color); }
+    .wa-action-btn svg { width: 18px; height: 18px; }
 
     /* --- Chat body --- */
     .wa-body {
@@ -372,16 +383,6 @@
       box-shadow: 0 0 0 2px var(--wa-color-light);
       background: #fff;
     }
-    .wa-mic-btn {
-      width: 38px; height: 38px; flex-shrink: 0;
-      border-radius: 50%; border: none;
-      background: transparent;
-      color: #64748b; display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      transition: background .15s, color .15s;
-    }
-    .wa-mic-btn:hover { background: #f1f5f9; color: var(--wa-color); }
-    .wa-mic-btn svg { width: 20px; height: 20px; }
     .wa-send-btn {
       width: 42px; height: 42px; flex-shrink: 0;
       border-radius: 50%; border: none;
@@ -491,6 +492,8 @@
       .wa-header-status { color: #4ade80; }
       .wa-back-btn { color: #94a3b8; }
       .wa-back-btn:hover { background: #1e293b; color: #f1f5f9; }
+      .wa-action-btn { color: #94a3b8; }
+      .wa-action-btn:hover { background: #1e293b; color: #4ade80; }
       .wa-body { background: #0f172a; }
       .wa-msg-row.received .wa-msg-bubble { background: #1e293b; color: #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
       .wa-msg-row.sent .wa-msg-bubble { background: var(--wa-color); color: #fff; }
@@ -500,8 +503,6 @@
       .wa-input::placeholder { color: #64748b; }
       .wa-input:focus { border-color: var(--wa-color); box-shadow: 0 0 0 2px var(--wa-color-light); background: #0f172a; }
       .wa-footer-note { color: #64748b; }
-      .wa-mic-btn { color: #94a3b8; }
-      .wa-mic-btn:hover { background: #1e293b; color: var(--wa-color); }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -605,7 +606,6 @@
         '<div class="wa-body"></div>' +
         '<form class="wa-form" autocomplete="off">' +
           '<div class="wa-input-row">' +
-            '<button class="wa-mic-btn" type="button" aria-label="Micrófono">' + ICONS.mic + '</button>' +
             '<input class="wa-input" type="text" placeholder="' + cfg.inputPlaceholder + '" aria-label="Escribe tu mensaje">' +
             '<button class="wa-send-btn" type="submit" aria-label="Enviar por WhatsApp">' + ICONS.send + '</button>' +
           '</div>' +
@@ -619,6 +619,11 @@
     header.appendChild(headerAvatar);
     var info = html('<div class="wa-header-info"><p class="wa-header-name">' + cfg.name + '</p><p class="wa-header-status"><span class="wa-dot-online"></span> ' + cfg.onlineText + '</p></div>');
     header.appendChild(info);
+
+    var actions = html('<div class="wa-header-actions"></div>');
+    actions.appendChild(html('<button class="wa-action-btn" aria-label="Videollamada">' + ICONS.video + '</button>'));
+    actions.appendChild(html('<button class="wa-action-btn" aria-label="Llamada">' + ICONS.phone + '</button>'));
+    header.appendChild(actions);
 
     /* Messages */
     var body = panelEl.querySelector('.wa-body');

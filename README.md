@@ -1,6 +1,6 @@
 # WhatsApp Chat Bubble
 
-[![Version](https://img.shields.io/badge/version-1.1.0-green.svg)](https://github.com/Avanxo-Technology/wp-bubble-message)
+[![Version](https://img.shields.io/badge/version-1.1.1-green.svg)](https://github.com/Avanxo-Technology/wp-bubble-message)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Minified](https://img.shields.io/badge/minified-whatsapp--bubble.min.js-orange.svg)](https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js)
 
@@ -33,7 +33,7 @@ El widget aparece en la esquina inferior derecha con un botón flotante.
 
 **Versión fija** (recomendado en producción):
 ```
-https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@v1.1.0/whatsapp-bubble.min.js
+https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@v1.1.1/whatsapp-bubble.min.js
 ```
 > Solo funcionan las versiones que existen como **tag de Git** en el repo. Si apuntas a un tag inexistente, jsDelivr responde **404** (por eso fallaba `@v1.0.0`). Para publicar una nueva: actualiza `VERSION`, deja que el workflow minifique y luego `git tag vX.Y.Z && git push origin vX.Y.Z`.
 Alternativa sin tags, fijando el commit (siempre funciona):
@@ -77,7 +77,9 @@ Todos los parámetros se definen como atributos `data-*` en el tag `<script>`.
 | `data-sound` | `none` | Sonido al mostrar el teaser. Opciones: `none`, `pop`, `ding`, `bubble`, `chime`, `slide` |
 | `data-sound-volume` | `1` | Volumen del sonido (`0` a `1`, ej: `0.5`) |
 
-> Los sonidos se generan con Web Audio API (sin archivos externos). Por política de autoplay, el navegador bloquea el audio hasta el primer gesto del usuario (click, tap, tecla o scroll): si el teaser aparece antes, **el sonido queda en cola y se reproduce en ese primer gesto**. Puedes probarlo manualmente con `WhatsAppBubble.playSound()` desde la consola.
+> Los sonidos se generan con Web Audio API (sin archivos externos). Por política de autoplay, el navegador bloquea el audio hasta un gesto real del usuario (click, tap o tecla — **el scroll no cuenta**). El `AudioContext` no se crea hasta que ese gesto ocurre, así que no aparece el warning `The AudioContext was not allowed to start` en consola. Si el teaser se muestra antes (por ejemplo disparado por scroll), **el sonido queda en cola y se reproduce en el primer gesto real**. Puedes probarlo con `WhatsAppBubble.playSound()` desde la consola.
+>
+> Consecuencia práctica: si tu teaser se dispara por scroll, el ding sonará algo después, al primer click del visitante. Si prefieres evitarlo, usa `data-sound="none"`.
 
 ### Botones del header (llamada / videollamada)
 

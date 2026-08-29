@@ -119,9 +119,24 @@
   var audioCtx = null;
   var audioUnlocked = false;
   var soundPending = false;
+  var gestureSeen = false;
+
+  /* Only a *trusted* gesture counts for the autoplay policy. `scroll` does not,
+     and neither does a synthetic .click() — creating the AudioContext without one
+     just logs a console warning and yields a suspended context. */
+  var UNLOCK_EVENTS = ['click', 'touchend', 'keydown', 'pointerup'];
+
+  function hasUserActivation() {
+    if (gestureSeen) return true;
+    try {
+      return !!(navigator.userActivation && navigator.userActivation.hasBeenActive);
+    } catch (e) { return false; }
+  }
 
   function getAudioCtx() {
     if (!audioCtx) {
+      /* Do not construct it before activation: that is what triggers the warning */
+      if (!hasUserActivation()) return null;
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       } catch (e) { return null; }
@@ -129,11 +144,18 @@
     return audioCtx;
   }
 
+  function onUserGesture(e) {
+    if (e && e.isTrusted === false) return;
+    gestureSeen = true;
+    unlockAudio();
+  }
+
   function unlockAudio() {
     var ctx = getAudioCtx();
     if (!ctx) return;
     if (ctx.state === 'running') {
       audioUnlocked = true;
+      removeUnlockListeners();
       flushPendingSound();
       return;
     }
@@ -144,16 +166,14 @@
     }).catch(function () { /* still locked, keep listening */ });
   }
 
-  var UNLOCK_EVENTS = ['click', 'touchstart', 'touchend', 'keydown', 'pointerdown', 'scroll'];
-
   function removeUnlockListeners() {
     UNLOCK_EVENTS.forEach(function (evt) {
-      document.removeEventListener(evt, unlockAudio, true);
+      document.removeEventListener(evt, onUserGesture, true);
     });
   }
 
   UNLOCK_EVENTS.forEach(function (evt) {
-    document.addEventListener(evt, unlockAudio, { capture: true, passive: true });
+    document.addEventListener(evt, onUserGesture, { capture: true, passive: true });
   });
 
   /* Some browsers (and bfcache restores) suspend the context again */
@@ -231,11 +251,10 @@
   function playSound() {
     if (cfg.sound === 'none' || !SOUNDS[cfg.sound]) return;
     var ctx = getAudioCtx();
-    if (!ctx) return;
-    if (ctx.state !== 'running') {
-      /* Autoplay policy: remember it and fire on the first user gesture */
+    if (!ctx || ctx.state !== 'running') {
+      /* Autoplay policy: remember it and fire on the first real user gesture */
       soundPending = true;
-      unlockAudio();
+      if (ctx) unlockAudio();
       return;
     }
     audioUnlocked = true;
@@ -897,4 +916,4 @@
     },
   };
 })();
-// v1.1.0
+// v1.1.1

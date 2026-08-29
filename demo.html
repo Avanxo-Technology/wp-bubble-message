@@ -227,6 +227,17 @@
       </div>
     </div>
 
+    <!-- Botones del header -->
+    <div class="section">
+      <div class="section-title">Botones del header</div>
+      <div class="field">
+        <label><input type="checkbox" id="c-show-video" checked> Mostrar videollamada</label>
+      </div>
+      <div class="field">
+        <label><input type="checkbox" id="c-show-call" checked> Mostrar llamada</label>
+      </div>
+    </div>
+
     <!-- Mensajes -->
     <div class="section">
       <div class="section-title">Mensajes</div>
@@ -348,7 +359,7 @@
      Live config
      ----------------------------------------------------------- */
   var els = {};
-  ['phone','name','avatar','color','color-picker','icon','size','greeting','default','teaser','teaser-sub','position','dismiss','trigger'].forEach(function(k) {
+  ['phone','name','avatar','color','color-picker','icon','size','greeting','default','teaser','teaser-sub','position','dismiss','trigger','show-call','show-video'].forEach(function(k) {
     els[k] = document.getElementById('c-' + k);
   });
 
@@ -359,6 +370,7 @@
   /* Rebuild on any change */
   document.querySelectorAll('.panel input, .panel select').forEach(function(el) {
     el.addEventListener('input', rebuild);
+    if (el.type === 'checkbox') el.addEventListener('change', rebuild);
   });
 
   var bubbleScript = null;
@@ -379,6 +391,8 @@
       dismiss: els.dismiss.value,
       trigger: els.trigger.value,
       sound: currentSound,
+      showCall: els['show-call'].checked,
+      showVideo: els['show-video'].checked,
     };
   }
 
@@ -412,6 +426,8 @@
         position:       c.position,
         dismiss:        c.dismiss,
         sound:          c.sound,
+        showCall:       c.showCall,
+        showVideo:      c.showVideo,
         panelWidth:     '320',
         triggerId:      c.trigger || '',
       });
@@ -430,6 +446,8 @@
     if (c.icon !== 'chat') lines.push('  data-bubble-icon="' + c.icon + '"');
     if (c.size !== '56') lines.push('  data-bubble-size="' + c.size + '"');
     if (c.sound !== 'none') lines.push('  data-sound="' + c.sound + '"');
+    if (!c.showVideo) lines.push('  data-show-video="false"');
+    if (!c.showCall) lines.push('  data-show-call="false"');
     lines.push('  data-position="' + c.position + '"');
     if (c.dismiss !== 'none') lines.push('  data-dismiss="' + c.dismiss + '"');
     if (c.trigger) lines.push('  data-trigger-id="' + c.trigger + '"');
@@ -460,6 +478,8 @@
     if (c.icon !== 'chat') lines.push('  data-bubble-icon="' + c.icon + '"');
     if (c.size !== '56') lines.push('  data-bubble-size="' + c.size + '"');
     if (c.sound !== 'none') lines.push('  data-sound="' + c.sound + '"');
+    if (!c.showVideo) lines.push('  data-show-video="false"');
+    if (!c.showCall) lines.push('  data-show-call="false"');
     lines.push('  data-position="' + c.position + '"');
     if (c.dismiss !== 'none') lines.push('  data-dismiss="' + c.dismiss + '"');
     if (c.trigger) lines.push('  data-trigger-id="' + c.trigger + '"');

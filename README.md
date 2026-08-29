@@ -31,9 +31,13 @@ El widget aparece en la esquina inferior derecha con un botón flotante.
 | **jsDelivr** (recomendado) | `https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js` |
 | **GitHub Raw** | `https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.min.js` |
 
-**Versión fija** (ej: v1.0.0):
+**Versión fija** — requiere que el tag exista en el repo (`git tag v1.0.0 && git push origin v1.0.0`). Si el tag no existe, jsDelivr responde **404**:
 ```
 https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@v1.0.0/whatsapp-bubble.min.js
+```
+Alternativa sin tags, fijando el commit (siempre funciona):
+```
+https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@<commit-sha>/whatsapp-bubble.min.js
 ```
 
 ---
@@ -70,8 +74,20 @@ Todos los parámetros se definen como atributos `data-*` en el tag `<script>`.
 | Atributo | Default | Descripción |
 |----------|---------|-------------|
 | `data-sound` | `none` | Sonido al mostrar el teaser. Opciones: `none`, `pop`, `ding`, `bubble`, `chime`, `slide` |
+| `data-sound-volume` | `1` | Volumen del sonido (`0` a `1`, ej: `0.5`) |
 
-> Los sonidos se generan con Web Audio API (sin archivos externos). Solo suenan después del primer gesto del usuario (política de autoplay del navegador).
+> Los sonidos se generan con Web Audio API (sin archivos externos). Por política de autoplay, el navegador bloquea el audio hasta el primer gesto del usuario (click, tap, tecla o scroll): si el teaser aparece antes, **el sonido queda en cola y se reproduce en ese primer gesto**. Puedes probarlo manualmente con `WhatsAppBubble.playSound()` desde la consola.
+
+### Botones del header (llamada / videollamada)
+
+| Atributo | Default | Descripción |
+|----------|---------|-------------|
+| `data-show-video` | `true` | Muestra el botón de videollamada. `false` para ocultarlo |
+| `data-show-call` | `true` | Muestra el botón de llamada. `false` para ocultarlo |
+| `data-video-message` | `Hola, quisiera coordinar una videollamada.` | Mensaje que se envía a WhatsApp al pulsar videollamada |
+| `data-call-message` | `Hola, quisiera coordinar una llamada.` | Mensaje que se envía a WhatsApp al pulsar llamada |
+
+> Ambos botones abren `wa.me` con el mensaje correspondiente (WhatsApp no permite iniciar llamadas por enlace directo).
 
 ### Mensajes
 

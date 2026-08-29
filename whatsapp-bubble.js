@@ -38,6 +38,11 @@
     color:             scriptEl?.getAttribute('data-color')             || '#25D366',
     bubbleIcon:        scriptEl?.getAttribute('data-bubble-icon')       || 'chat',
     sound:             scriptEl?.getAttribute('data-sound')             || 'none',
+    soundVolume:       parseFloat(scriptEl?.getAttribute('data-sound-volume') || '1') || 1,
+    showCall:          (scriptEl?.getAttribute('data-show-call')  || 'true') !== 'false',
+    showVideo:         (scriptEl?.getAttribute('data-show-video') || 'true') !== 'false',
+    callMessage:       scriptEl?.getAttribute('data-call-message')  || 'Hola, quisiera coordinar una llamada.',
+    videoMessage:      scriptEl?.getAttribute('data-video-message') || 'Hola, quisiera coordinar una videollamada.',
     greeting:          scriptEl?.getAttribute('data-greeting')          || 'Te estábamos esperando. Cuéntanos en qué te podemos ayudar.',
     defaultMessage:    scriptEl?.getAttribute('data-default-message')   || 'Hola, vengo de la web y quiero más información.',
     teaserText:        scriptEl?.getAttribute('data-teaser')            || '¡Hola! ¿Necesitas ayuda?',
@@ -113,26 +118,54 @@
    * ----------------------------------------------------------- */
   var audioCtx = null;
   var audioUnlocked = false;
+  var soundPending = false;
 
   function getAudioCtx() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) { return null; }
+    }
     return audioCtx;
   }
 
   function unlockAudio() {
-    if (audioUnlocked) return;
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().then(function () { audioUnlocked = true; });
-      } else {
-        audioUnlocked = true;
-      }
-    } catch (e) { /* noop */ }
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'running') {
+      audioUnlocked = true;
+      flushPendingSound();
+      return;
+    }
+    ctx.resume().then(function () {
+      audioUnlocked = true;
+      removeUnlockListeners();
+      flushPendingSound();
+    }).catch(function () { /* still locked, keep listening */ });
   }
 
-  ['click', 'touchstart', 'keydown', 'pointerdown'].forEach(function (evt) {
-    document.addEventListener(evt, unlockAudio, { once: true, passive: true });
+  var UNLOCK_EVENTS = ['click', 'touchstart', 'touchend', 'keydown', 'pointerdown', 'scroll'];
+
+  function removeUnlockListeners() {
+    UNLOCK_EVENTS.forEach(function (evt) {
+      document.removeEventListener(evt, unlockAudio, true);
+    });
+  }
+
+  UNLOCK_EVENTS.forEach(function (evt) {
+    document.addEventListener(evt, unlockAudio, { capture: true, passive: true });
   });
+
+  /* Some browsers (and bfcache restores) suspend the context again */
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && audioCtx && audioCtx.state === 'suspended') unlockAudio();
+  });
+
+  function flushPendingSound() {
+    if (!soundPending) return;
+    soundPending = false;
+    playSound();
+  }
 
   var SOUNDS = {
     pop: function () {
@@ -142,7 +175,7 @@
       o.type = 'sine';
       o.frequency.setValueAtTime(600, ctx.currentTime);
       o.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.12);
-      g.gain.setValueAtTime(0.25, ctx.currentTime);
+      g.gain.setValueAtTime(0.25 * cfg.soundVolume, ctx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
       o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.15);
     },
@@ -153,7 +186,7 @@
       o.type = 'sine';
       o.frequency.setValueAtTime(880, ctx.currentTime);
       o.frequency.setValueAtTime(1100, ctx.currentTime + 0.08);
-      g.gain.setValueAtTime(0.2, ctx.currentTime);
+      g.gain.setValueAtTime(0.2 * cfg.soundVolume, ctx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
       o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.25);
     },
@@ -165,7 +198,7 @@
       o.frequency.setValueAtTime(400, ctx.currentTime);
       o.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.06);
       o.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.14);
-      g.gain.setValueAtTime(0.2, ctx.currentTime);
+      g.gain.setValueAtTime(0.2 * cfg.soundVolume, ctx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
       o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.18);
     },
@@ -177,7 +210,7 @@
         o.type = 'sine';
         o.frequency.value = freq;
         g.gain.setValueAtTime(0, ctx.currentTime + i * 0.08);
-        g.gain.linearRampToValueAtTime(0.15, ctx.currentTime + i * 0.08 + 0.02);
+        g.gain.linearRampToValueAtTime(0.15 * cfg.soundVolume, ctx.currentTime + i * 0.08 + 0.02);
         g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.2);
         o.start(ctx.currentTime + i * 0.08); o.stop(ctx.currentTime + i * 0.08 + 0.2);
       });
@@ -189,14 +222,23 @@
       o.type = 'triangle';
       o.frequency.setValueAtTime(300, ctx.currentTime);
       o.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1);
-      g.gain.setValueAtTime(0.18, ctx.currentTime);
+      g.gain.setValueAtTime(0.18 * cfg.soundVolume, ctx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
       o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.12);
     },
   };
 
   function playSound() {
-    if (!audioUnlocked || cfg.sound === 'none' || !SOUNDS[cfg.sound]) return;
+    if (cfg.sound === 'none' || !SOUNDS[cfg.sound]) return;
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state !== 'running') {
+      /* Autoplay policy: remember it and fire on the first user gesture */
+      soundPending = true;
+      unlockAudio();
+      return;
+    }
+    audioUnlocked = true;
     try { SOUNDS[cfg.sound](); } catch (e) { /* noop */ }
   }
 
@@ -621,9 +663,17 @@
     header.appendChild(info);
 
     var actions = html('<div class="wa-header-actions"></div>');
-    actions.appendChild(html('<button class="wa-action-btn" aria-label="Videollamada">' + ICONS.video + '</button>'));
-    actions.appendChild(html('<button class="wa-action-btn" aria-label="Llamada">' + ICONS.phone + '</button>'));
-    header.appendChild(actions);
+    if (cfg.showVideo) {
+      var videoBtn = html('<button class="wa-action-btn" type="button" aria-label="Videollamada" title="Videollamada">' + ICONS.video + '</button>');
+      videoBtn.addEventListener('click', function () { openWhatsApp(cfg.videoMessage); });
+      actions.appendChild(videoBtn);
+    }
+    if (cfg.showCall) {
+      var callBtn = html('<button class="wa-action-btn" type="button" aria-label="Llamada" title="Llamada">' + ICONS.phone + '</button>');
+      callBtn.addEventListener('click', function () { openWhatsApp(cfg.callMessage); });
+      actions.appendChild(callBtn);
+    }
+    if (actions.children.length) header.appendChild(actions);
 
     /* Messages */
     var body = panelEl.querySelector('.wa-body');
@@ -750,9 +800,13 @@
     markDismissed();
   }
 
+  function openWhatsApp(text) {
+    window.open('https://wa.me/' + cfg.phone + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
+  }
+
   function send() {
     var text = (inputEl.value.trim()) || cfg.defaultMessage;
-    window.open('https://wa.me/' + cfg.phone + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
+    openWhatsApp(text);
     inputEl.value = '';
     closePanel();
   }
@@ -824,6 +878,7 @@
       container.innerHTML = '';
       state = { open: false, teaserVisible: false };
     },
+    playSound: function () { playSound(); },
     update: function (newCfg) {
       this.destroy();
       var keys = Object.keys(newCfg);

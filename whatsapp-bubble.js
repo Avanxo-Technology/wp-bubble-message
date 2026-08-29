@@ -563,16 +563,32 @@
     if (e.key === 'Escape' && state.open) closePanel();
   });
 
-  /* --- Scroll trigger --- */
+  /* --- Scroll trigger: only fires AFTER user has scrolled at least once --- */
   function watchTrigger() {
     var triggerId = scriptEl?.getAttribute('data-trigger-id');
     if (!triggerId) return;
     var trigger = document.getElementById(triggerId);
     if (!trigger) return;
-    if (!('IntersectionObserver' in window)) { showTeaser(); return; }
+    if (!('IntersectionObserver' in window)) {
+      /* Fallback: show after a short delay */
+      setTimeout(showTeaser, 2000);
+      return;
+    }
+
+    var hasScrolled = false;
+    function onFirstScroll() {
+      hasScrolled = true;
+      window.removeEventListener('scroll', onFirstScroll, { passive: true });
+    }
+    window.addEventListener('scroll', onFirstScroll, { passive: true });
+
     new IntersectionObserver(function (entries, obs) {
-      if (entries[0].isIntersecting) { showTeaser(); obs.disconnect(); }
-    }, { threshold: 0.25 }).observe(trigger);
+      /* Only show if user has actually scrolled and element is visible */
+      if (entries[0].isIntersecting && hasScrolled) {
+        showTeaser();
+        obs.disconnect();
+      }
+    }, { threshold: 0.2, rootMargin: '0px 0px -5% 0px' }).observe(trigger);
   }
 
   /* --- Init --- */

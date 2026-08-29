@@ -84,10 +84,10 @@ Todos los parámetros se definen como atributos `data-*` en el tag `<script>`.
 |----------|---------|-------------|
 | `data-show-video` | `true` | Muestra el botón de videollamada. `false` para ocultarlo |
 | `data-show-call` | `true` | Muestra el botón de llamada. `false` para ocultarlo |
-| `data-video-message` | `Hola, quisiera coordinar una videollamada.` | Mensaje que se envía a WhatsApp al pulsar videollamada |
-| `data-call-message` | `Hola, quisiera coordinar una llamada.` | Mensaje que se envía a WhatsApp al pulsar llamada |
+| `data-video-message` | *(usa `data-default-message`)* | Mensaje opcional al pulsar videollamada |
+| `data-call-message` | *(usa `data-default-message`)* | Mensaje opcional al pulsar llamada |
 
-> Ambos botones abren `wa.me` con el mensaje correspondiente (WhatsApp no permite iniciar llamadas por enlace directo).
+> Por defecto ambos botones abren `wa.me` con el mismo mensaje de `data-default-message` (WhatsApp no permite iniciar llamadas por enlace directo). Usa `data-call-message` / `data-video-message` solo si quieres un texto distinto.
 
 ### Mensajes
 

@@ -41,8 +41,8 @@
     soundVolume:       parseFloat(scriptEl?.getAttribute('data-sound-volume') || '1') || 1,
     showCall:          (scriptEl?.getAttribute('data-show-call')  || 'true') !== 'false',
     showVideo:         (scriptEl?.getAttribute('data-show-video') || 'true') !== 'false',
-    callMessage:       scriptEl?.getAttribute('data-call-message')  || 'Hola, quisiera coordinar una llamada.',
-    videoMessage:      scriptEl?.getAttribute('data-video-message') || 'Hola, quisiera coordinar una videollamada.',
+    callMessage:       scriptEl?.getAttribute('data-call-message')  || '',
+    videoMessage:      scriptEl?.getAttribute('data-video-message') || '',
     greeting:          scriptEl?.getAttribute('data-greeting')          || 'Te estábamos esperando. Cuéntanos en qué te podemos ayudar.',
     defaultMessage:    scriptEl?.getAttribute('data-default-message')   || 'Hola, vengo de la web y quiero más información.',
     teaserText:        scriptEl?.getAttribute('data-teaser')            || '¡Hola! ¿Necesitas ayuda?',
@@ -665,12 +665,12 @@
     var actions = html('<div class="wa-header-actions"></div>');
     if (cfg.showVideo) {
       var videoBtn = html('<button class="wa-action-btn" type="button" aria-label="Videollamada" title="Videollamada">' + ICONS.video + '</button>');
-      videoBtn.addEventListener('click', function () { openWhatsApp(cfg.videoMessage); });
+      videoBtn.addEventListener('click', function () { openWhatsApp(cfg.videoMessage || cfg.defaultMessage); });
       actions.appendChild(videoBtn);
     }
     if (cfg.showCall) {
       var callBtn = html('<button class="wa-action-btn" type="button" aria-label="Llamada" title="Llamada">' + ICONS.phone + '</button>');
-      callBtn.addEventListener('click', function () { openWhatsApp(cfg.callMessage); });
+      callBtn.addEventListener('click', function () { openWhatsApp(cfg.callMessage || cfg.defaultMessage); });
       actions.appendChild(callBtn);
     }
     if (actions.children.length) header.appendChild(actions);

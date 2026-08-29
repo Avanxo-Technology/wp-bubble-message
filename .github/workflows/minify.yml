@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - 'whatsapp-bubble.js'
-  workflow_dispatch:
 
 jobs:
   minify:
@@ -25,57 +24,33 @@ jobs:
       - name: Install Terser
         run: npm install -g terser
 
-      - name: Create banner comment
+      - name: Minify and add banner
         run: |
-          cat > banner.txt << 'BANNER'
-/**
- * WhatsApp Chat Bubble – Vanilla JS Plugin v1.0
- * https://github.com/Avanxo-Technology/wp-bubble-message
- *
- * Self-contained widget with Web Audio API sounds (no external files).
- * Dark mode support via prefers-color-scheme.
- *
- * USAGE:
- *   <script src="whatsapp-bubble.min.js"
- *     data-phone="573001234567"
- *     data-name="Mi Empresa"
- *     data-avatar="https://example.com/logo.png"
- *     data-color="#25D366"
- *     data-bubble-icon="whatsapp|chat"
- *     data-bubble-size="56"
- *     data-sound="pop|ding|bubble|chime|slide|none"
- *     data-greeting="Tu mensaje de bienvenida"
- *     data-default-message="Mensaje prellenado"
- *     data-teaser="Texto del teaser"
- *     data-teaser-subtitle="Subtítulo del teaser"
- *     data-position="right|left"
- *     data-dismiss="none|session|persistent"
- *     data-trigger-id="element-id"
- *     data-panel-width="340"
- *     data-online-text="En línea"
- *     data-input-placeholder="Escribe tu mensaje…"
- *     data-footer-note="Nota al pie"
- *   ></script>
- *
- * API (after load):
- *   WhatsAppBubble.update(config) – Update config and rebuild
- *   WhatsAppBubble.destroy()      – Remove widget from DOM
- *
- * SOUNDS: Generated via Web Audio API oscillators.
- *         Only plays after first user gesture (click/tap/key).
- *
- * LICENSE: MIT
- */
-          BANNER
-
-      - name: Minify with banner
-        run: |
-          BANNER=$(cat banner.txt)
+          printf '/**\n' > banner.txt
+          printf ' * WhatsApp Chat Bubble – Vanilla JS Plugin v1.0\n' >> banner.txt
+          printf ' * https://github.com/Avanxo-Technology/wp-bubble-message\n' >> banner.txt
+          printf ' *\n' >> banner.txt
+          printf ' * Self-contained widget with Web Audio API sounds (no external files).\n' >> banner.txt
+          printf ' * Dark mode support via prefers-color-scheme.\n' >> banner.txt
+          printf ' *\n' >> banner.txt
+          printf ' * USAGE:\n' >> banner.txt
+          printf ' *   <script src="whatsapp-bubble.min.js"\n' >> banner.txt
+          printf ' *     data-phone="573001234567"\n' >> banner.txt
+          printf ' *     data-name="Mi Empresa"\n' >> banner.txt
+          printf ' *     data-color="#25D366"\n' >> banner.txt
+          printf ' *     data-sound="pop|ding|bubble|chime|slide|none"\n' >> banner.txt
+          printf ' *     data-position="right|left"\n' >> banner.txt
+          printf ' *     data-dismiss="none|session|persistent"\n' >> banner.txt
+          printf ' *   ></script>\n' >> banner.txt
+          printf ' *\n' >> banner.txt
+          printf ' * API: WhatsAppBubble.update(config) | WhatsAppBubble.destroy()\n' >> banner.txt
+          printf ' * LICENSE: MIT\n' >> banner.txt
+          printf ' */\n' >> banner.txt
           terser whatsapp-bubble.js \
             --compress drop_console=true,drop_debugger=true \
             --mangle toplevel=true \
             --output whatsapp-bubble.min.js
-          echo "$BANNER" | cat - whatsapp-bubble.min.js > temp.js && mv temp.js whatsapp-bubble.min.js
+          cat banner.txt whatsapp-bubble.min.js > temp.js && mv temp.js whatsapp-bubble.min.js
 
       - name: Get file size
         run: |

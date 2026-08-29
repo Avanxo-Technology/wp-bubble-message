@@ -201,9 +201,10 @@
   }
 
   /* -----------------------------------------------------------
-   * 5. Build CSS
+   * 5. Build CSS (function so it regenerates on update)
    * ----------------------------------------------------------- */
-  var CSS = `
+  function buildCSS() {
+    return `
     .wa-root {
       --wa-font: ${cfg.fontFamily};
       --wa-color: ${cfg.color};
@@ -230,6 +231,8 @@
       box-shadow: 0 16px 64px rgba(0,0,0,0.2), 0 2px 12px rgba(0,0,0,0.08);
       transform-origin: bottom right;
       animation: waSlideIn .35s cubic-bezier(.16,1,.3,1);
+      display: flex; flex-direction: column;
+      max-height: min(520px, calc(100vh - 100px));
     }
     .wa-container[data-pos="left"] .wa-panel { transform-origin: bottom left; }
     @keyframes waSlideIn {
@@ -239,130 +242,161 @@
 
     /* --- Header --- */
     .wa-header {
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px 18px;
-      background: var(--wa-color); color: #fff;
-      position: relative;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      background: #fff; color: #1e293b;
+      border-bottom: 1px solid #e5e7eb;
+      flex-shrink: 0;
     }
-    .wa-header::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-      background: rgba(255,255,255,0.12);
+    .wa-back-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 50%;
+      color: #64748b; cursor: pointer;
+      transition: background .15s, color .15s;
+      flex-shrink: 0;
     }
+    .wa-back-btn:hover { background: #f1f5f9; color: #1e293b; }
+    .wa-back-btn svg { width: 20px; height: 20px; }
     .wa-avatar {
-      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
       position: relative; overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      border: 2px solid rgba(255,255,255,0.25);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .wa-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
     .wa-avatar-fallback {
       width: 100%; height: 100%; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 700; color: #fff; line-height: 1;
+      font-size: 14px; font-weight: 700; color: #fff; line-height: 1;
     }
     .wa-header-info { flex: 1; min-width: 0; }
     .wa-header-name {
-      font-size: 15px; font-weight: 700; line-height: 1.3;
-      font-family: var(--wa-font); letter-spacing: .01em;
+      font-size: 15px; font-weight: 600; line-height: 1.3;
+      font-family: var(--wa-font);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: #1e293b;
     }
     .wa-header-status {
       display: flex; align-items: center; gap: 6px;
-      font-size: 12px; line-height: 1.3; opacity: .92;
-      font-family: var(--wa-font); margin-top: 2px;
+      font-size: 12px; line-height: 1.3; color: #22c55e;
+      font-family: var(--wa-font); margin-top: 1px;
     }
     .wa-dot-online {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: #4ade80; flex-shrink: 0;
-      box-shadow: 0 0 6px rgba(74,222,128,0.5);
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #22c55e; flex-shrink: 0;
       animation: waDotPulse 2.5s ease-in-out infinite;
     }
     @keyframes waDotPulse {
-      0%, 100% { box-shadow: 0 0 6px rgba(74,222,128,0.5); }
-      50% { box-shadow: 0 0 12px rgba(74,222,128,0.8); }
+      0%, 100% { opacity: 1; }
+      50% { opacity: .5; }
     }
-    .wa-close-btn {
-      display: flex; align-items: center; justify-content: center;
-      width: 32px; height: 32px; border-radius: 50%;
-      color: rgba(255,255,255,0.8); cursor: pointer;
-      transition: background .2s, color .2s, transform .15s;
-    }
-    .wa-close-btn:hover { background: rgba(255,255,255,0.15); color: #fff; transform: scale(1.08); }
-    .wa-close-btn svg { width: 16px; height: 16px; }
 
     /* --- Chat body --- */
     .wa-body {
-      padding: 18px 16px 14px;
-      background: #f0f2f5;
-      min-height: 120px;
+      flex: 1; overflow-y: auto;
+      padding: 16px 14px;
+      background: #f8f9fb;
+      display: flex; flex-direction: column; gap: 6px;
+      min-height: 200px; max-height: 320px;
+      scroll-behavior: smooth;
     }
+    .wa-body::-webkit-scrollbar { width: 4px; }
+    .wa-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+
     .wa-msg-row {
-      display: flex; align-items: flex-end; gap: 8px;
-      animation: waMsgIn .3s ease .1s both;
+      display: flex; align-items: flex-end; gap: 6px;
+      animation: waMsgIn .3s ease both;
     }
+    .wa-msg-row.sent { flex-direction: row-reverse; }
+    .wa-msg-row.received { flex-direction: row; }
+
     @keyframes waMsgIn {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: none; }
     }
     .wa-msg-avatar {
-      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
       position: relative; overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
     .wa-msg-avatar .wa-avatar-img { width: 100%; height: 100%; }
-    .wa-msg-avatar .wa-avatar-fallback { font-size: 11px; }
+    .wa-msg-avatar .wa-avatar-fallback { font-size: 10px; }
+
+    .wa-msg-content { max-width: 78%; display: flex; flex-direction: column; gap: 2px; }
+    .wa-msg-row.sent .wa-msg-content { align-items: flex-end; }
+    .wa-msg-row.received .wa-msg-content { align-items: flex-start; }
+
     .wa-msg-bubble {
-      max-width: 82%; padding: 12px 16px;
-      border-radius: 16px 16px 16px 4px;
+      padding: 10px 14px;
+      font-size: 13.5px; line-height: 1.5; color: #1e293b;
+      font-family: var(--wa-font);
+      word-wrap: break-word;
+    }
+    .wa-msg-row.received .wa-msg-bubble {
       background: #fff;
-      font-size: 14px; line-height: 1.55; color: #1e293b;
-      font-family: var(--wa-font);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border-radius: 4px 16px 16px 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
     }
+    .wa-msg-row.sent .wa-msg-bubble {
+      background: var(--wa-color);
+      color: #fff;
+      border-radius: 16px 4px 16px 16px;
+    }
+
     .wa-msg-time {
-      display: block; margin-top: 6px;
-      font-size: 10px; color: #94a3b8; text-align: right;
+      font-size: 10px; color: #94a3b8;
       font-family: var(--wa-font);
+      padding: 0 4px;
     }
+    .wa-msg-row.sent .wa-msg-time { text-align: right; }
 
     /* --- Input area --- */
     .wa-form {
-      margin-top: 0;
-      padding: 12px 16px 16px;
+      padding: 10px 12px 12px;
       background: #fff;
-      border-top: 1px solid #e8eaed;
+      border-top: 1px solid #e5e7eb;
+      flex-shrink: 0;
     }
-    .wa-input-row { display: flex; align-items: center; gap: 10px; }
+    .wa-input-row { display: flex; align-items: center; gap: 8px; }
     .wa-input {
       flex: 1; min-width: 0;
-      height: 46px; padding: 0 16px;
-      border-radius: 23px;
-      border: 1.5px solid #e2e5ea;
+      height: 42px; padding: 0 14px;
+      border-radius: 21px;
+      border: 1px solid #e5e7eb;
       background: #f8f9fb; color: #1e293b;
-      font-size: 14px; font-family: var(--wa-font);
+      font-size: 13.5px; font-family: var(--wa-font);
       outline: none; transition: border-color .2s, box-shadow .2s, background .2s;
     }
     .wa-input::placeholder { color: #9ca3af; }
     .wa-input:focus {
       border-color: var(--wa-color);
-      box-shadow: 0 0 0 3px var(--wa-color-light);
+      box-shadow: 0 0 0 2px var(--wa-color-light);
       background: #fff;
     }
+    .wa-mic-btn {
+      width: 38px; height: 38px; flex-shrink: 0;
+      border-radius: 50%; border: none;
+      background: transparent;
+      color: #64748b; display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .wa-mic-btn:hover { background: #f1f5f9; color: var(--wa-color); }
+    .wa-mic-btn svg { width: 20px; height: 20px; }
     .wa-send-btn {
-      width: 46px; height: 46px; flex-shrink: 0;
+      width: 42px; height: 42px; flex-shrink: 0;
       border-radius: 50%; border: none;
       background: var(--wa-color);
       color: #fff; display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.15);
       transition: transform .15s, box-shadow .15s, background .2s;
     }
-    .wa-send-btn:hover { background: var(--wa-color-hover); transform: scale(1.06); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .wa-send-btn:hover { background: var(--wa-color-hover); transform: scale(1.05); }
     .wa-send-btn:active { transform: scale(.95); }
-    .wa-send-btn svg { width: 20px; height: 20px; }
+    .wa-send-btn svg { width: 18px; height: 18px; }
+
     .wa-footer-note {
-      margin-top: 10px;
-      text-align: center; font-size: 11px; color: #a0aec0;
+      margin-top: 8px;
+      text-align: center; font-size: 10px; color: #a0aec0;
       font-family: var(--wa-font);
     }
 
@@ -449,14 +483,36 @@
       50% { transform: translateY(-5px); }
     }
 
+    /* --- Dark mode --- */
+    @media (prefers-color-scheme: dark) {
+      .wa-panel { background: #1e293b; box-shadow: 0 16px 64px rgba(0,0,0,0.4), 0 2px 12px rgba(0,0,0,0.2); }
+      .wa-header { background: #0f172a; border-bottom-color: #334155; }
+      .wa-header-name { color: #f1f5f9; }
+      .wa-header-status { color: #4ade80; }
+      .wa-back-btn { color: #94a3b8; }
+      .wa-back-btn:hover { background: #1e293b; color: #f1f5f9; }
+      .wa-body { background: #0f172a; }
+      .wa-msg-row.received .wa-msg-bubble { background: #1e293b; color: #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+      .wa-msg-row.sent .wa-msg-bubble { background: var(--wa-color); color: #fff; }
+      .wa-msg-time { color: #64748b; }
+      .wa-form { background: #1e293b; border-top-color: #334155; }
+      .wa-input { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+      .wa-input::placeholder { color: #64748b; }
+      .wa-input:focus { border-color: var(--wa-color); box-shadow: 0 0 0 2px var(--wa-color-light); background: #0f172a; }
+      .wa-footer-note { color: #64748b; }
+      .wa-mic-btn { color: #94a3b8; }
+      .wa-mic-btn:hover { background: #1e293b; color: var(--wa-color); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .wa-panel, .wa-teaser { animation: none !important; }
       .wa-bubble { transition: none !important; animation: none !important; }
     }
   `;
+  }
 
   var styleEl = document.createElement('style');
-  styleEl.textContent = CSS;
+  styleEl.textContent = buildCSS();
   document.head.appendChild(styleEl);
 
   /* -----------------------------------------------------------
@@ -466,7 +522,11 @@
     chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
     whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-    send: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4 21 12 3.4 3.6 3.39 10.1 15.5 12 3.39 13.9z"/></svg>',
+    send: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+    video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>',
+    mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
   };
   function resolveIcon(key) {
     if (ICONS[key]) return ICONS[key];
@@ -535,39 +595,47 @@
 
   /* --- Build panel --- */
   function buildPanel() {
-    var headerAvatar = makeAvatar(40, 15);
-    var bodyAvatar = makeAvatar(28, 11);
+    var headerAvatar = makeAvatar(40, 14);
 
     panelEl = html(
       '<div class="wa-panel" role="dialog" aria-label="Chat de WhatsApp" style="display:none">' +
-        '<div class="wa-header"></div>' +
-        '<div class="wa-body">' +
-          '<div class="wa-msg-row"></div>' +
-          '<form class="wa-form" autocomplete="off">' +
-            '<div class="wa-input-row">' +
-              '<input class="wa-input" type="text" placeholder="' + cfg.inputPlaceholder + '" aria-label="Escribe tu mensaje">' +
-              '<button class="wa-send-btn" type="submit" aria-label="Enviar por WhatsApp">' + ICONS.send + '</button>' +
-            '</div>' +
-            '<p class="wa-footer-note">' + cfg.footerNote + '</p>' +
-          '</form>' +
+        '<div class="wa-header">' +
+          '<button class="wa-back-btn" aria-label="Cerrar">' + ICONS.back + '</button>' +
         '</div>' +
+        '<div class="wa-body"></div>' +
+        '<form class="wa-form" autocomplete="off">' +
+          '<div class="wa-input-row">' +
+            '<button class="wa-mic-btn" type="button" aria-label="Micrófono">' + ICONS.mic + '</button>' +
+            '<input class="wa-input" type="text" placeholder="' + cfg.inputPlaceholder + '" aria-label="Escribe tu mensaje">' +
+            '<button class="wa-send-btn" type="submit" aria-label="Enviar por WhatsApp">' + ICONS.send + '</button>' +
+          '</div>' +
+          '<p class="wa-footer-note">' + cfg.footerNote + '</p>' +
+        '</form>' +
       '</div>'
     );
 
-    /* Header */
+    /* Header: avatar + name + back button */
     var header = panelEl.querySelector('.wa-header');
     header.appendChild(headerAvatar);
     var info = html('<div class="wa-header-info"><p class="wa-header-name">' + cfg.name + '</p><p class="wa-header-status"><span class="wa-dot-online"></span> ' + cfg.onlineText + '</p></div>');
     header.appendChild(info);
-    var closeBtn = html('<button class="wa-close-btn" aria-label="' + cfg.ariaLabelClose + '">' + ICONS.close + '</button>');
-    header.appendChild(closeBtn);
 
-    /* Message body */
-    var msgRow = panelEl.querySelector('.wa-msg-row');
-    msgRow.appendChild(bodyAvatar);
-    msgRow.appendChild(html('<div class="wa-msg-bubble"><p>' + cfg.greeting + '</p></div>'));
+    /* Messages */
+    var body = panelEl.querySelector('.wa-body');
 
-    closeBtn.addEventListener('click', closePanel);
+    /* Greeting message (received) */
+    var row1 = html('<div class="wa-msg-row received"></div>');
+    row1.appendChild(makeAvatar(28, 10));
+    var content1 = html('<div class="wa-msg-content"></div>');
+    content1.appendChild(html('<div class="wa-msg-bubble"><p>' + cfg.greeting + '</p></div>'));
+    var now = new Date();
+    var timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    content1.appendChild(html('<span class="wa-msg-time">' + timeStr + '</span>'));
+    row1.appendChild(content1);
+    body.appendChild(row1);
+
+    /* Events */
+    panelEl.querySelector('.wa-back-btn').addEventListener('click', closePanel);
     panelEl.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); send(); });
     inputEl = panelEl.querySelector('.wa-input');
   }
@@ -748,6 +816,7 @@
     destroy: function () {
       if (root && root.parentNode) root.parentNode.removeChild(root);
       if (styleEl && styleEl.parentNode) styleEl.parentNode.removeChild(styleEl);
+      container.innerHTML = '';
       state = { open: false, teaserVisible: false };
     },
     update: function (newCfg) {
@@ -757,6 +826,8 @@
         cfg[keys[i]] = newCfg[keys[i]];
       }
       bubbleIconSvg = resolveIcon(cfg.bubbleIcon);
+      styleEl.textContent = buildCSS();
+      document.head.appendChild(styleEl);
       buildPanel(); buildTeaser(); buildBubble();
       container.appendChild(panelEl);
       container.appendChild(teaserEl);

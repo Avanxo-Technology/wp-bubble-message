@@ -46,10 +46,11 @@ jobs:
           echo " *     data-color=\"#25D366\"" >> banner.txt
           echo " *     data-sound=\"pop|ding|bubble|chime|slide|none\"" >> banner.txt
           echo " *     data-position=\"right|left\"" >> banner.txt
+          echo " *     data-show-call=\"true|false\" data-show-video=\"true|false\"" >> banner.txt
           echo " *     data-dismiss=\"none|session|persistent\"" >> banner.txt
           echo " *   ></script>" >> banner.txt
           echo " *" >> banner.txt
-          echo " * API: WhatsAppBubble.update(config) | WhatsAppBubble.destroy()" >> banner.txt
+          echo " * API: WhatsAppBubble.update(config) | WhatsAppBubble.destroy() | WhatsAppBubble.playSound()" >> banner.txt
           echo " * LICENSE: MIT" >> banner.txt
           echo " */" >> banner.txt
           terser whatsapp-bubble.js \

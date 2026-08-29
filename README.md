@@ -6,8 +6,6 @@ Plugin vanilla JavaScript para un widget de chat de WhatsApp. Sin dependencias, 
 
 ### Opción 1 – GitHub como CDN (recomendado)
 
-Copia la URL raw del archivo y úsala directamente:
-
 ```html
 <script src="https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.js"
   data-phone="573001234567"
@@ -37,27 +35,124 @@ Eso es todo. El widget aparece en la esquina inferior derecha.
 
 Todos los parámetros se definen como atributos `data-*` en el tag `<script>`:
 
+### Datos de contacto
+
 | Atributo | Default | Descripción |
 |---|---|---|
 | `data-phone` | `573001234567` | Número de WhatsApp con código de país (sin `+` ni espacios) |
 | `data-name` | `Soporte` | Nombre que aparece en el header del panel |
-| `data-avatar` | *(none)* | URL de la imagen de perfil (cuadrada, recomendado 80x80+) |
+| `data-avatar` | *(none)* | URL de la imagen de perfil. Si falla, muestra iniciales con color de contraste |
+
+### Colores y estilo
+
+| Atributo | Default | Descripción |
+|---|---|---|
 | `data-color` | `#25D366` | Color primario (botón, header, acentos) |
+| `data-font-family` | *(auto)* | Fuente del widget. Si no se define, hereda la del sitio automáticamente |
+| `data-bubble-size` | `56` | Diámetro del botón flotante en px |
+| `data-panel-width` | `340` | Ancho del panel de chat en px |
+
+### Icono del botón
+
+| Atributo | Default | Descripción |
+|---|---|---|
+| `data-bubble-icon` | `chat` | Icono del botón flotante. Opciones: `chat`, `whatsapp`, o un string con HTML `<svg>...</svg>` |
+
+### Mensajes
+
+| Atributo | Default | Descripción |
+|---|---|---|
 | `data-greeting` | `Te estábamos esperando...` | Mensaje de bienvenida dentro del chat |
 | `data-default-message` | `Hola, vengo de la web...` | Mensaje que se envía si el usuario escribe vacío |
 | `data-teaser` | `¡Hola! ¿Necesitas ayuda?` | Texto del teaser emergente |
 | `data-teaser-subtitle` | `Escríbenos por WhatsApp` | Subtítulo del teaser |
-| `data-position` | `right` | Posición: `right` o `left` |
-| `data-bubble-size` | `56` | Diámetro del botón flotante en px |
-| `data-panel-width` | `340` | Ancho del panel de chat en px |
 | `data-online-text` | `En línea` | Texto del indicador de estado |
 | `data-input-placeholder` | `Escribe tu mensaje…` | Placeholder del input |
 | `data-footer-note` | `Se abre WhatsApp...` | Nota debajo del input |
+
+### Comportamiento
+
+| Atributo | Default | Descripción |
+|---|---|---|
+| `data-position` | `right` | Posición: `right` o `left` |
+| `data-dismiss` | `none` | Comportamiento al cerrar el teaser: `none` (siempre visible), `session` (no vuelve al refrescar), `persistent` (no vuelve nunca, usa localStorage) |
+| `data-trigger-id` | *(none)* | ID de un elemento que, al hacerse visible en scroll, muestra el teaser |
+
+### Accesibilidad
+
+| Atributo | Default | Descripción |
+|---|---|---|
 | `data-aria-open` | `Abrir chat` | Label de accesibilidad del botón |
 | `data-aria-close` | `Cerrar chat` | Label de accesibilidad al cerrar |
-| `data-font-family` | *(auto)* | Fuente del widget. Si no se define, hereda la fuente del sitio automáticamente. |
-| `data-trigger-id` | *(none)* | ID de un elemento que, al hacerse visible, muestra el teaser |
-| `data-remember` | `false` | Si `true`, el teaser no vuelve a mostrar en la misma sesión |
+
+## Avatar con fallback
+
+Si defines `data-avatar` con una URL y la imagen no carga, el widget automáticamente muestra las **iniciales** del nombre sobre un fondo con color de contraste calculado a partir de `data-color`.
+
+```
+data-name="Avanxo"  →  muestra "AV"
+data-name="Soporte"  →  muestra "SO"
+data-name="Mi Tienda"  →  muestra "MT"
+```
+
+No necesitas hacer nada额外 — el fallback es automático.
+
+## Icono del botón
+
+El botón flotante soporta 3 modos:
+
+| Valor | Resultado |
+|---|---|
+| `chat` *(default)* | Icono de burbuja de chat |
+| `whatsapp` | Icono oficial de WhatsApp |
+| `<svg>...</svg>` | Cualquier SVG inline personalizado |
+
+```html
+<!-- Icono de WhatsApp -->
+<script src="whatsapp-bubble.js"
+  data-phone="573001234567"
+  data-name="Mi Empresa"
+  data-bubble-icon="whatsapp"
+></script>
+```
+
+## Dismiss (persistencia del teaser)
+
+Controla qué pasa cuando el usuario cierra el teaser con el botón X:
+
+| Valor | Comportamiento |
+|---|---|
+| `none` *(default)* | El teaser siempre vuelve a aparecer |
+| `session` | No vuelve hasta cerrar el navegador (usa `sessionStorage`) |
+| `persistent` | No vuelve nunca más (usa `localStorage`) |
+
+```html
+<!-- No vuelve nunca más después de cerrar -->
+<script src="whatsapp-bubble.js"
+  data-phone="573001234567"
+  data-name="Mi Empresa"
+  data-dismiss="persistent"
+></script>
+```
+
+## Scroll trigger
+
+El teaser puede aparecer automáticamente cuando el usuario hace scroll hasta una sección específica:
+
+```html
+<!-- El teaser aparece al llegar a #pricing -->
+<section id="pricing">...</section>
+
+<script src="whatsapp-bubble.js"
+  data-phone="573001234567"
+  data-name="Mi Empresa"
+  data-trigger-id="pricing"
+  data-teaser="¿Tienes preguntas sobre pricing?"
+  data-teaser-subtitle="Estamos en línea"
+></script>
+```
+
+Usa `IntersectionObserver` — si el navegador no lo soporta, el teaser se muestra directamente.
 
 ## Ejemplo completo
 
@@ -67,13 +162,14 @@ Todos los parámetros se definen como atributos `data-*` en el tag `<script>`:
   data-name="Avanxo"
   data-avatar="https://example.com/logo.png"
   data-color="#4285F4"
+  data-bubble-icon="whatsapp"
   data-position="right"
+  data-dismiss="persistent"
+  data-trigger-id="hero"
   data-greeting="Te estábamos esperando. Cuéntanos hacia dónde quieres llevar tu marca."
   data-default-message="Hola, vengo de la web y quiero un diagnóstico."
   data-teaser="¿Necesitas asesoría?"
   data-teaser-subtitle="Estamos en línea"
-  data-trigger-id="hero"
-  data-remember="true"
   data-panel-width="380"
   data-bubble-size="60"
 ></script>
@@ -98,18 +194,21 @@ Puedes tener varios bubbles en la misma página, cada uno con su propia configur
   data-name="Soporte"
   data-color="#E53E3E"
   data-position="left"
+  data-bubble-icon="whatsapp"
 ></script>
 ```
 
 ## Comportamiento
 
-- **Teaser**: Aparece automáticamente cuando el usuario hace scroll hasta el elemento `data-trigger-id` (si se define). Si no hay trigger, no aparece teaser.
-- **Session remember**: Con `data-remember="true"`, el teaser solo se muestra una vez por sesión (usando `sessionStorage`).
+- **Avatar fallback**: Si la imagen no carga, muestra iniciales con color de contraste automático.
+- **Icono configurable**: `chat` (default), `whatsapp`, o SVG personalizado.
+- **Dismiss**: `none` (siempre visible), `session` ( sessionStorage ), `persistent` (localStorage).
+- **Teaser**: Aparece automáticamente al hacer scroll hasta `data-trigger-id`.
 - **Teclado**: La tecla `Escape` cierra el panel.
-- **Accesibilidad**: El widget incluye `role="dialog"`, `aria-expanded`, `aria-label` y `aria-live`.
+- **Accesibilidad**: `role="dialog"`, `aria-expanded`, `aria-label`, `aria-live`.
 - **Reduced motion**: Desactiva animaciones si el usuario prefiere movimiento reducido.
-- **Sin dependencias**: JavaScript vanilla puro. No necesita jQuery, Alpine, ni ninguna librería.
-- **Fuente heredada**: El widget detecta automáticamente la `font-family` del sitio y la usa. Si necesitas forzar una fuente específica, usa `data-font-family`.
+- **Fuente heredada**: Detecta la `font-family` del sitio automáticamente.
+- **Sin dependencias**: JavaScript vanilla puro. Zero librerías externas.
 
 ## Licencia
 

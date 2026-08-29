@@ -7,137 +7,255 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: #0f172a;
       color: #e2e8f0;
+      min-height: 200vh;
+      padding: 2rem;
+    }
+    .hero {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
+      text-align: center;
     }
     h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: .5rem; }
-    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 3rem; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 960px; width: 100%; }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 1rem; max-width: 600px; line-height: 1.6; }
+    .scroll-hint {
+      margin-top: 2rem;
+      color: #475569;
+      font-size: .85rem;
+      animation: bounce 2s ease infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+    }
     .card {
       background: #1e293b;
       border: 1px solid #334155;
       border-radius: 16px;
-      padding: 2rem;
+      padding: 1.5rem;
       transition: border-color .2s;
     }
     .card:hover { border-color: #475569; }
-    .card h2 { font-size: 1.25rem; margin-bottom: .75rem; }
-    .card p { color: #94a3b8; font-size: .9rem; line-height: 1.6; }
+    .card h2 { font-size: 1.1rem; margin-bottom: .5rem; display: flex; align-items: center; gap: 8px; }
+    .card p { color: #94a3b8; font-size: .85rem; line-height: 1.6; margin-bottom: .75rem; }
     .card code {
       display: block;
-      margin-top: 1rem;
-      padding: 1rem;
+      padding: .75rem;
       background: #0f172a;
       border-radius: 8px;
-      font-size: .75rem;
+      font-size: .7rem;
       color: #a5b4fc;
       white-space: pre;
       overflow-x: auto;
       line-height: 1.5;
     }
-    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .dot.green  { background: #25D366; }
     .dot.blue   { background: #4285F4; }
     .dot.red    { background: #E53E3E; }
     .dot.purple { background: #7C5CFC; }
-    .note { margin-top: 3rem; color: #64748b; font-size: .85rem; text-align: center; max-width: 600px; line-height: 1.6; }
+    .dot.orange { background: #F59E0B; }
+
+    /* --- Trigger section --- */
+    #scroll-trigger {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-top: 1px solid #1e293b;
+    }
+    #scroll-trigger h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: .5rem;
+    }
+    #scroll-trigger p {
+      color: #94a3b8;
+      font-size: 1rem;
+      max-width: 500px;
+      line-height: 1.6;
+    }
+    .trigger-badge {
+      margin-top: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: #7C5CFC;
+      color: #fff;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+
+    .note {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      border-top: 1px solid #1e293b;
+      color: #64748b;
+      font-size: .85rem;
+      text-align: center;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
     a { color: #60a5fa; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .badge-new { background: #16a34a20; color: #4ade80; }
   </style>
 </head>
 <body>
 
-  <h1>WhatsApp Bubble</h1>
-  <p class="subtitle">Plugin vanilla JS configurable. Usa el mismo script con diferentes colores, avatares y mensajes.</p>
+  <!-- ============================================================
+       HERO
+       ============================================================ -->
+  <section class="hero">
+    <h1>WhatsApp Bubble</h1>
+    <p class="subtitle">Plugin vanilla JS configurable. Usa el mismo script con diferentes colores, avatares, iconos y comportamientos.</p>
 
-  <div class="cards">
-    <div class="card">
-      <h2><span class="dot green"></span>Verde por defecto</h2>
-      <p>El color clásico de WhatsApp. Sin avatar, con saludo y teaser personalizado.</p>
-      <code>&lt;script src="whatsapp-bubble.js"
+    <div class="cards">
+
+      <!-- 1. Default green -->
+      <div class="card">
+        <h2><span class="dot green"></span> Verde clásico</h2>
+        <p>Sin avatar (usa iniciales), icono de chat por defecto, sin persistencia.</p>
+        <code>&lt;script src="whatsapp-bubble.js"
   data-phone="573001234567"
   data-name="Mi Tienda"
   data-color="#25D366"
-  data-greeting="¡Hola! ¿En qué te ayudamos?"
-&gtgt;&lt;/script&gt;</code>
-    </div>
+  data-teaser="¡Hola! ¿Necesitas ayuda?"
+&gt;&lt;/script&gt;</code>
+      </div>
 
-    <div class="card">
-      <h2><span class="dot blue"></span>Azul corporativo</h2>
-      <p>Con avatar, mensaje por defecto y posición a la izquierda.</p>
-      <code>&lt;script src="whatsapp-bubble.js"
+      <!-- 2. Blue with WhatsApp icon -->
+      <div class="card">
+        <h2><span class="dot blue"></span> Azul + icono WhatsApp</h2>
+        <p>Icono personalizado, avatar con fallback a iniciales, posición izquierda.</p>
+        <code>&lt;script src="whatsapp-bubble.js"
   data-phone="573009876543"
   data-name="Avanxo"
-  data-avatar="https://avanxo.dev/static/avanxo-favicon.webp"
+  data-avatar="broken-url.jpg"
   data-color="#4285F4"
+  data-bubble-icon="whatsapp"
   data-position="left"
   data-teaser="¿Necesitas asesoría?"
-  data-teaser-subtitle="Estamos en línea"
-&gtgt;&lt;/script&gt;</code>
-    </div>
+&gt;&lt;/script&gt;</code>
+      </div>
 
-    <div class="card">
-      <h2><span class="dot red"></span>Rojo llamativo</h2>
-      <p>Tamaño de burbuja personalizado, placeholder y nota al pie.</p>
-      <code>&lt;script src="whatsapp-bubble.js"
+      <!-- 3. Red persistent dismiss -->
+      <div class="card">
+        <h2><span class="dot red"></span> Rojo + persistente <span class="badge badge-new">NEW</span></h2>
+        <p>Al cerrar el teaser con X, no vuelve nunca más (localStorage).</p>
+        <code>&lt;script src="whatsapp-bubble.js"
   data-phone="573001112233"
   data-name="Soporte"
   data-color="#E53E3E"
+  data-dismiss="persistent"
   data-bubble-size="64"
-  data-input-placeholder="¿Cómo te ayudamos?"
-  data-footer-note="Tu mensaje llega directo por WhatsApp."
-&gtgt;&lt;/script&gt;</code>
-    </div>
+&gt;&lt;/script&gt;</code>
+      </div>
 
-    <div class="card">
-      <h2><span class="dot purple"></span>Púrpura elegante</h2>
-      <p>Teaser automático al hacer scroll, con trigger y recordatorio de sesión.</p>
-      <code>&lt;script src="whatsapp-bubble.js"
+      <!-- 4. Purple with scroll trigger -->
+      <div class="card">
+        <h2><span class="dot purple"></span> Púrpura + scroll trigger</h2>
+        <p>El teaser aparece solo cuando haces scroll hasta la sección #scroll-trigger.</p>
+        <code>&lt;script src="whatsapp-bubble.js"
   data-phone="573004445566"
   data-name="Equipo Dev"
   data-color="#7C5CFC"
   data-avatar="https://i.pravatar.cc/80?img=12"
-  data-teaser="¡Hola dev! 👋"
-  data-teaser-subtitle="Hablemos de tu proyecto"
-  data-trigger-id="hero"
-  data-remember="true"
-  data-panel-width="380"
+  data-bubble-icon="whatsapp"
+  data-trigger-id="scroll-trigger"
+  data-dismiss="session"
 &gt;&lt;/script&gt;</code>
+      </div>
+
+      <!-- 5. Orange session dismiss -->
+      <div class="card">
+        <h2><span class="dot orange"></span> Naranja + sesión</h2>
+        <p>Al cerrar el teaser, no vuelve hasta cerrar el navegador (sessionStorage).</p>
+        <code>&lt;script src="whatsapp-bubble.js"
+  data-phone="573005556677"
+  data-name="Ventas"
+  data-color="#F59E0B"
+  data-dismiss="session"
+  data-teaser="¿Te interesa un plan?"
+  data-teaser-subtitle="Hablemos de pricing"
+&gt;&lt;/script&gt;</code>
+      </div>
+
     </div>
-  </div>
+
+    <p class="scroll-hint">↓ Scroll para probar el trigger automático ↓</p>
+  </section>
+
+  <!-- ============================================================
+       SCROLL TRIGGER SECTION
+       ============================================================ -->
+  <section id="scroll-trigger">
+    <h2>¡Hola! Llegaste al trigger</h2>
+    <p>El teaser del bubble púrpura apareció automáticamente al hacer scroll hasta aquí. Esto usa <code>IntersectionObserver</code> y el atributo <code>data-trigger-id="scroll-trigger"</code>.</p>
+    <span class="trigger-badge">↑ Teaser activado por scroll</span>
+  </section>
+
+  <!-- ============================================================
+       BOTTOM SPACER
+       ============================================================ -->
+  <section style="min-height:50vh;display:flex;align-items:center;justify-content:center;">
+    <p style="color:#475569;font-size:.9rem;">Fin del demo. Prueba los 5 bubbles en las esquinas.</p>
+  </section>
 
   <p class="note">
-    Cada <code>&lt;script&gt;</code> crea su propio widget independiente.
-    Puedes tener varios en la misma página sin conflictos.<br>
-    Usa GitHub como CDN: <a href="#">raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.js</a>
+    Cada <code>&lt;script&gt;</code> crea su propio widget independiente.<br>
+    Usa GitHub como CDN: <a href="https://github.com/Avanxo-Technology/wp-bubble-message">github.com/Avanxo-Technology/wp-bubble-message</a>
   </p>
 
   <!-- ============================================================
-       DEMO: 4 bubbles running simultaneously
+       DEMO: 5 bubbles running simultaneously
        ============================================================ -->
 
-  <!-- 1. Green default -->
+  <!-- 1. Green default – no avatar (shows initials), default chat icon -->
   <script src="whatsapp-bubble.js"
     data-phone="573001234567"
     data-name="Mi Tienda"
     data-color="#25D366"
-    data-greeting="¡Hola! ¿En qué te ayudamos?"
     data-teaser="¡Hola! ¿Necesitas ayuda?"
     data-teaser-subtitle="Escríbenos por WhatsApp"
   ></script>
 
-  <!-- 2. Blue corporate (left) -->
+  <!-- 2. Blue – broken avatar (fallback to initials 'AV'), WhatsApp icon, left -->
   <script src="whatsapp-bubble.js"
     data-phone="573009876543"
     data-name="Avanxo"
-    data-avatar="https://avanxo.dev/static/avanxo-favicon.webp"
+    data-avatar="https://broken-url-example.com/does-not-exist.jpg"
     data-color="#4285F4"
+    data-bubble-icon="whatsapp"
     data-position="left"
     data-teaser="¿Necesitas asesoría?"
     data-teaser-subtitle="Estamos en línea"
@@ -145,11 +263,12 @@
     data-bubble-size="60"
   ></script>
 
-  <!-- 3. Red -->
+  <!-- 3. Red – persistent dismiss (localStorage), large bubble -->
   <script src="whatsapp-bubble.js"
     data-phone="573001112233"
     data-name="Soporte"
     data-color="#E53E3E"
+    data-dismiss="persistent"
     data-bubble-size="64"
     data-input-placeholder="¿Cómo te ayudamos?"
     data-footer-note="Tu mensaje llega directo por WhatsApp."
@@ -157,17 +276,28 @@
     data-teaser-subtitle="Resolvemos tu caso"
   ></script>
 
-  <!-- 4. Purple (with avatar + session remember) -->
+  <!-- 4. Purple – scroll trigger + session dismiss + WhatsApp icon + avatar -->
   <script src="whatsapp-bubble.js"
     data-phone="573004445566"
     data-name="Equipo Dev"
     data-color="#7C5CFC"
     data-avatar="https://i.pravatar.cc/80?img=12"
+    data-bubble-icon="whatsapp"
+    data-trigger-id="scroll-trigger"
+    data-dismiss="session"
     data-teaser="¡Hola dev! ¿Cómo estás?"
     data-teaser-subtitle="Hablemos de tu proyecto"
-    data-trigger-id="hero"
-    data-remember="true"
     data-panel-width="380"
+  ></script>
+
+  <!-- 5. Orange – session dismiss, no trigger (teaser shows immediately) -->
+  <script src="whatsapp-bubble.js"
+    data-phone="573005556677"
+    data-name="Ventas"
+    data-color="#F59E0B"
+    data-dismiss="session"
+    data-teaser="¿Te interesa un plan?"
+    data-teaser-subtitle="Hablemos de pricing"
   ></script>
 
 </body>

@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'whatsapp-bubble.js'
+      - 'VERSION'
 
 jobs:
   minify:
@@ -16,6 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Read VERSION
+        id: version
+        run: echo "version=$(cat VERSION 2>/dev/null || echo '0.0.0')" >> "$GITHUB_OUTPUT"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -24,28 +29,29 @@ jobs:
       - name: Install Terser
         run: npm install -g terser
 
-      - name: Minify and add banner
+      - name: Minify
         run: |
-          printf '/**\n' > banner.txt
-          printf ' * WhatsApp Chat Bubble – Vanilla JS Plugin v1.0\n' >> banner.txt
-          printf ' * https://github.com/Avanxo-Technology/wp-bubble-message\n' >> banner.txt
-          printf ' *\n' >> banner.txt
-          printf ' * Self-contained widget with Web Audio API sounds (no external files).\n' >> banner.txt
-          printf ' * Dark mode support via prefers-color-scheme.\n' >> banner.txt
-          printf ' *\n' >> banner.txt
-          printf ' * USAGE:\n' >> banner.txt
-          printf ' *   <script src="whatsapp-bubble.min.js"\n' >> banner.txt
-          printf ' *     data-phone="573001234567"\n' >> banner.txt
-          printf ' *     data-name="Mi Empresa"\n' >> banner.txt
-          printf ' *     data-color="#25D366"\n' >> banner.txt
-          printf ' *     data-sound="pop|ding|bubble|chime|slide|none"\n' >> banner.txt
-          printf ' *     data-position="right|left"\n' >> banner.txt
-          printf ' *     data-dismiss="none|session|persistent"\n' >> banner.txt
-          printf ' *   ></script>\n' >> banner.txt
-          printf ' *\n' >> banner.txt
-          printf ' * API: WhatsAppBubble.update(config) | WhatsAppBubble.destroy()\n' >> banner.txt
-          printf ' * LICENSE: MIT\n' >> banner.txt
-          printf ' */\n' >> banner.txt
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "/**" > banner.txt
+          echo " * WhatsApp Chat Bubble – Vanilla JS Plugin v${VERSION}" >> banner.txt
+          echo " * https://github.com/Avanxo-Technology/wp-bubble-message" >> banner.txt
+          echo " *" >> banner.txt
+          echo " * Self-contained widget with Web Audio API sounds (no external files)." >> banner.txt
+          echo " * Dark mode support via prefers-color-scheme." >> banner.txt
+          echo " *" >> banner.txt
+          echo " * USAGE:" >> banner.txt
+          echo " *   <script src=\"whatsapp-bubble.min.js\"" >> banner.txt
+          echo " *     data-phone=\"573001234567\"" >> banner.txt
+          echo " *     data-name=\"Mi Empresa\"" >> banner.txt
+          echo " *     data-color=\"#25D366\"" >> banner.txt
+          echo " *     data-sound=\"pop|ding|bubble|chime|slide|none\"" >> banner.txt
+          echo " *     data-position=\"right|left\"" >> banner.txt
+          echo " *     data-dismiss=\"none|session|persistent\"" >> banner.txt
+          echo " *   ></script>" >> banner.txt
+          echo " *" >> banner.txt
+          echo " * API: WhatsAppBubble.update(config) | WhatsAppBubble.destroy()" >> banner.txt
+          echo " * LICENSE: MIT" >> banner.txt
+          echo " */" >> banner.txt
           terser whatsapp-bubble.js \
             --compress drop_console=true,drop_debugger=true \
             --mangle toplevel=true \
@@ -54,6 +60,7 @@ jobs:
 
       - name: Get file size
         run: |
+          echo "Version: ${{ steps.version.outputs.version }}"
           echo "Original: $(wc -c < whatsapp-bubble.js) bytes"
           echo "Minified: $(wc -c < whatsapp-bubble.min.js) bytes"
 
@@ -62,5 +69,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add whatsapp-bubble.min.js
-          git diff --cached --quiet || git commit -m "chore: minify whatsapp-bubble.js [skip ci]"
+          git diff --cached --quiet || git commit -m "chore: minify v${{ steps.version.outputs.version }} [skip ci]"
           git push

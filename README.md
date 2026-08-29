@@ -1,6 +1,6 @@
 # WhatsApp Chat Bubble
 
-[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/Avanxo-Technology/wp-bubble-message)
+[![Version](https://img.shields.io/badge/version-1.1.0-green.svg)](https://github.com/Avanxo-Technology/wp-bubble-message)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Minified](https://img.shields.io/badge/minified-whatsapp--bubble.min.js-orange.svg)](https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js)
 
@@ -31,10 +31,11 @@ El widget aparece en la esquina inferior derecha con un botón flotante.
 | **jsDelivr** (recomendado) | `https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js` |
 | **GitHub Raw** | `https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.min.js` |
 
-**Versión fija** — requiere que el tag exista en el repo (`git tag v1.0.0 && git push origin v1.0.0`). Si el tag no existe, jsDelivr responde **404**:
+**Versión fija** (recomendado en producción):
 ```
-https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@v1.0.0/whatsapp-bubble.min.js
+https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@v1.1.0/whatsapp-bubble.min.js
 ```
+> Solo funcionan las versiones que existen como **tag de Git** en el repo. Si apuntas a un tag inexistente, jsDelivr responde **404** (por eso fallaba `@v1.0.0`). Para publicar una nueva: actualiza `VERSION`, deja que el workflow minifique y luego `git tag vX.Y.Z && git push origin vX.Y.Z`.
 Alternativa sin tags, fijando el commit (siempre funciona):
 ```
 https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@<commit-sha>/whatsapp-bubble.min.js

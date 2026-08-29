@@ -570,25 +570,37 @@
     var trigger = document.getElementById(triggerId);
     if (!trigger) return;
     if (!('IntersectionObserver' in window)) {
-      /* Fallback: show after a short delay */
       setTimeout(showTeaser, 2000);
       return;
     }
 
+    /* Find the closest scrollable parent (or use window) */
+    var scrollEl = null;
+    var el = trigger.parentElement;
+    while (el && el !== document.body) {
+      var style = getComputedStyle(el);
+      if (style.overflow === 'auto' || style.overflow === 'scroll' ||
+          style.overflowY === 'auto' || style.overflowY === 'scroll') {
+        scrollEl = el;
+        break;
+      }
+      el = el.parentElement;
+    }
+
     var hasScrolled = false;
+    var listenTarget = scrollEl || window;
     function onFirstScroll() {
       hasScrolled = true;
-      window.removeEventListener('scroll', onFirstScroll, { passive: true });
+      listenTarget.removeEventListener('scroll', onFirstScroll, { passive: true });
     }
-    window.addEventListener('scroll', onFirstScroll, { passive: true });
+    listenTarget.addEventListener('scroll', onFirstScroll, { passive: true });
 
     new IntersectionObserver(function (entries, obs) {
-      /* Only show if user has actually scrolled and element is visible */
       if (entries[0].isIntersecting && hasScrolled) {
         showTeaser();
         obs.disconnect();
       }
-    }, { threshold: 0.2, rootMargin: '0px 0px -5% 0px' }).observe(trigger);
+    }, { threshold: 0.15, root: scrollEl }).observe(trigger);
   }
 
   /* --- Init --- */

@@ -125,8 +125,8 @@
     }
   }
 
-  /* Unlock on first user interaction */
-  ['click', 'touchstart', 'keydown'].forEach(function (evt) {
+  /* Unlock on first real user gesture (scroll does NOT count per Chrome autoplay policy) */
+  ['click', 'touchstart', 'keydown', 'pointerdown'].forEach(function (evt) {
     document.addEventListener(evt, unlockAudio, { once: true, passive: true });
   });
 
@@ -193,7 +193,11 @@
 
   function playSound() {
     if (cfg.sound === 'none' || !SOUNDS[cfg.sound]) return;
-    try { SOUNDS[cfg.sound](); } catch (e) { /* noop */ }
+    try {
+      var ctx = getAudioCtx();
+      if (!ctx || ctx.state === 'suspended') return;
+      SOUNDS[cfg.sound]();
+    } catch (e) { /* noop */ }
   }
 
   /* -----------------------------------------------------------
@@ -204,6 +208,7 @@
       --wa-font: ${cfg.fontFamily};
       --wa-color: ${cfg.color};
       --wa-color-hover: ${darken(cfg.color, 0.1)};
+      --wa-color-light: ${lighten(cfg.color, 0.85)};
     }
     .wa-root *, .wa-root *::before, .wa-root *::after {
       box-sizing: border-box; margin: 0; padding: 0; border: 0;
@@ -216,54 +221,150 @@
     .wa-container[data-pos="right"] { right: 20px; align-items: flex-end; }
     .wa-container[data-pos="left"]  { left: 20px;  align-items: flex-start; }
 
+    /* ===================== CHAT PANEL ===================== */
     .wa-panel {
       pointer-events: auto;
       width: min(${cfg.panelWidth}px, calc(100vw - 40px));
-      border-radius: 16px; overflow: hidden; background: #fff;
-      box-shadow: 0 12px 48px rgba(0,0,0,0.22);
+      border-radius: 20px; overflow: hidden;
+      background: #fff;
+      box-shadow: 0 16px 64px rgba(0,0,0,0.2), 0 2px 12px rgba(0,0,0,0.08);
       transform-origin: bottom right;
-      animation: waSlideIn .32s cubic-bezier(.22,1,.36,1);
+      animation: waSlideIn .35s cubic-bezier(.16,1,.3,1);
     }
     .wa-container[data-pos="left"] .wa-panel { transform-origin: bottom left; }
     @keyframes waSlideIn {
-      from { opacity: 0; transform: translateY(14px) scale(.96); }
+      from { opacity: 0; transform: translateY(16px) scale(.94); }
       to   { opacity: 1; transform: none; }
     }
 
+    /* --- Header --- */
     .wa-header {
       display: flex; align-items: center; gap: 12px;
-      padding: 14px 16px; background: var(--wa-color); color: #fff;
+      padding: 16px 18px;
+      background: var(--wa-color); color: #fff;
+      position: relative;
     }
-    .wa-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; position: relative; overflow: hidden; }
+    .wa-header::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+      background: rgba(255,255,255,0.12);
+    }
+    .wa-avatar {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      position: relative; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      border: 2px solid rgba(255,255,255,0.25);
+    }
     .wa-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
     .wa-avatar-fallback {
       width: 100%; height: 100%; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 15px; font-weight: 700; color: #fff; line-height: 1;
+      font-size: 16px; font-weight: 700; color: #fff; line-height: 1;
     }
     .wa-header-info { flex: 1; min-width: 0; }
-    .wa-header-name { font-size: 15px; font-weight: 600; line-height: 1.3; font-family: var(--wa-font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .wa-header-status { display: flex; align-items: center; gap: 6px; font-size: 12px; line-height: 1.3; opacity: .9; font-family: var(--wa-font); }
-    .wa-dot-online { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
-    .wa-close-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: #fff; cursor: pointer; transition: background .2s; }
-    .wa-close-btn:hover { background: rgba(255,255,255,0.15); }
+    .wa-header-name {
+      font-size: 15px; font-weight: 700; line-height: 1.3;
+      font-family: var(--wa-font); letter-spacing: .01em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .wa-header-status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; line-height: 1.3; opacity: .92;
+      font-family: var(--wa-font); margin-top: 2px;
+    }
+    .wa-dot-online {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #4ade80; flex-shrink: 0;
+      box-shadow: 0 0 6px rgba(74,222,128,0.5);
+      animation: waDotPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes waDotPulse {
+      0%, 100% { box-shadow: 0 0 6px rgba(74,222,128,0.5); }
+      50% { box-shadow: 0 0 12px rgba(74,222,128,0.8); }
+    }
+    .wa-close-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 50%;
+      color: rgba(255,255,255,0.8); cursor: pointer;
+      transition: background .2s, color .2s, transform .15s;
+    }
+    .wa-close-btn:hover { background: rgba(255,255,255,0.15); color: #fff; transform: scale(1.08); }
+    .wa-close-btn svg { width: 16px; height: 16px; }
 
-    .wa-body { padding: 16px; }
-    .wa-msg-row { display: flex; align-items: flex-end; gap: 8px; }
-    .wa-msg-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; position: relative; overflow: hidden; }
+    /* --- Chat body --- */
+    .wa-body {
+      padding: 18px 16px 14px;
+      background: #f0f2f5;
+      min-height: 120px;
+    }
+    .wa-msg-row {
+      display: flex; align-items: flex-end; gap: 8px;
+      animation: waMsgIn .3s ease .1s both;
+    }
+    @keyframes waMsgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .wa-msg-avatar {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      position: relative; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
     .wa-msg-avatar .wa-avatar-img { width: 100%; height: 100%; }
     .wa-msg-avatar .wa-avatar-fallback { font-size: 11px; }
-    .wa-msg-bubble { max-width: 86%; padding: 12px 14px; border-radius: 12px 12px 12px 4px; background: #f3f4f6; font-size: 14px; line-height: 1.5; color: #1f2937; font-family: var(--wa-font); }
+    .wa-msg-bubble {
+      max-width: 82%; padding: 12px 16px;
+      border-radius: 16px 16px 16px 4px;
+      background: #fff;
+      font-size: 14px; line-height: 1.55; color: #1e293b;
+      font-family: var(--wa-font);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .wa-msg-time {
+      display: block; margin-top: 6px;
+      font-size: 10px; color: #94a3b8; text-align: right;
+      font-family: var(--wa-font);
+    }
 
-    .wa-form { margin-top: 14px; }
-    .wa-input-row { display: flex; align-items: center; gap: 8px; }
-    .wa-input { flex: 1; min-width: 0; height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #d1d5db; background: #fff; color: #1f2937; font-size: 14px; font-family: var(--wa-font); outline: none; transition: border-color .2s; }
+    /* --- Input area --- */
+    .wa-form {
+      margin-top: 0;
+      padding: 12px 16px 16px;
+      background: #fff;
+      border-top: 1px solid #e8eaed;
+    }
+    .wa-input-row { display: flex; align-items: center; gap: 10px; }
+    .wa-input {
+      flex: 1; min-width: 0;
+      height: 46px; padding: 0 16px;
+      border-radius: 23px;
+      border: 1.5px solid #e2e5ea;
+      background: #f8f9fb; color: #1e293b;
+      font-size: 14px; font-family: var(--wa-font);
+      outline: none; transition: border-color .2s, box-shadow .2s, background .2s;
+    }
     .wa-input::placeholder { color: #9ca3af; }
-    .wa-input:focus { border-color: var(--wa-color); }
-    .wa-send-btn { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; background: var(--wa-color); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s; }
-    .wa-send-btn:hover { background: var(--wa-color-hover); }
+    .wa-input:focus {
+      border-color: var(--wa-color);
+      box-shadow: 0 0 0 3px var(--wa-color-light);
+      background: #fff;
+    }
+    .wa-send-btn {
+      width: 46px; height: 46px; flex-shrink: 0;
+      border-radius: 50%; border: none;
+      background: var(--wa-color);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+      transition: transform .15s, box-shadow .15s, background .2s;
+    }
+    .wa-send-btn:hover { background: var(--wa-color-hover); transform: scale(1.06); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .wa-send-btn:active { transform: scale(.95); }
     .wa-send-btn svg { width: 20px; height: 20px; }
-    .wa-footer-note { margin-top: 10px; text-align: center; font-size: 11px; color: #9ca3af; font-family: var(--wa-font); }
+    .wa-footer-note {
+      margin-top: 10px;
+      text-align: center; font-size: 11px; color: #a0aec0;
+      font-family: var(--wa-font);
+    }
 
     /* --- Teaser: modern card design --- */
     .wa-teaser {
@@ -338,14 +439,19 @@
       border-radius: 50%; background: var(--wa-color); color: #fff;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; box-shadow: 0 6px 22px rgba(0,0,0,0.28);
-      transition: background .2s, transform .2s;
+      transition: background .2s, transform .2s, box-shadow .2s;
+      animation: waBubbleFloat 3s ease-in-out infinite;
     }
-    .wa-bubble:hover { background: var(--wa-color-hover); transform: scale(1.06); }
-    .wa-bubble:active { transform: scale(.96); }
+    .wa-bubble:hover { background: var(--wa-color-hover); transform: scale(1.06); animation-play-state: paused; box-shadow: 0 8px 28px rgba(0,0,0,0.32); }
+    .wa-bubble:active { transform: scale(.96); animation-play-state: paused; }
+    @keyframes waBubbleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .wa-panel, .wa-teaser { animation: none !important; }
-      .wa-bubble { transition: none !important; }
+      .wa-bubble { transition: none !important; animation: none !important; }
     }
   `;
 

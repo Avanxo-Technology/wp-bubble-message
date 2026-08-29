@@ -101,14 +101,34 @@
 
   /* -----------------------------------------------------------
    * 4. Sound synthesis (Web Audio API — no external files)
+   *    Browsers block audio without prior user gesture.
+   *    We unlock on first click/touch/keydown.
    * ----------------------------------------------------------- */
   var audioCtx = null;
+  var audioUnlocked = false;
+
   function getAudioCtx() {
     if (!audioCtx) {
       try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { /* noop */ }
     }
     return audioCtx;
   }
+
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(function () { audioUnlocked = true; });
+    } else {
+      audioUnlocked = true;
+    }
+  }
+
+  /* Unlock on first user interaction */
+  ['click', 'touchstart', 'keydown'].forEach(function (evt) {
+    document.addEventListener(evt, unlockAudio, { once: true, passive: true });
+  });
 
   var SOUNDS = {
     pop: function () {

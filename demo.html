@@ -11,15 +11,15 @@
     body { font-family: 'Inter', sans-serif; background: #0c0f1a; color: #e2e8f0; min-height: 100vh; }
 
     /* --- Layout --- */
-    .app { display: flex; min-height: 100vh; }
+    .app { display: flex; min-height: 100vh; height: 100vh; }
     .panel {
       width: 420px; flex-shrink: 0; background: #141829;
       border-right: 1px solid #1e2440; padding: 28px 24px;
-      overflow-y: auto; max-height: 100vh; position: sticky; top: 0;
+      overflow-y: auto; height: 100vh; position: sticky; top: 0;
     }
     .preview {
       flex: 1; display: flex; align-items: center; justify-content: center;
-      padding: 40px; position: relative; overflow: hidden;
+      padding: 40px; position: relative; height: 100vh; overflow-y: auto;
     }
     .preview-bg {
       position: absolute; inset: 0;
@@ -109,7 +109,7 @@
 
     /* --- Preview area --- */
     .preview-frame {
-      width: 375px; height: 680px; background: #1a1f35;
+      width: 375px; height: 100%; max-height: 680px; background: #1a1f35;
       border-radius: 24px; border: 2px solid #1e2440;
       position: relative; overflow-y: auto; overflow-x: hidden;
       box-shadow: 0 24px 80px rgba(0,0,0,0.4);

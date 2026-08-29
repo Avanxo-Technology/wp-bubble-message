@@ -1,10 +1,16 @@
-# whatsapp-bubble
+# WhatsApp Chat Bubble
 
-Plugin vanilla JavaScript para un widget de chat de WhatsApp. Sin dependencias, configurable via atributos `data-*`, listo para usar en cualquier página.
+[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/Avanxo-Technology/wp-bubble-message)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Minified](https://img.shields.io/badge/minified-whatsapp--bubble.min.js-orange.svg)](https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js)
 
-## Instalación
+> Widget de chat de WhatsApp para tu página web. Vanilla JS, sin dependencias, configurable con atributos `data-*`.
 
-### Opción 1 – jsDelivr CDN (recomendado)
+---
+
+## Instalación rápida
+
+Copia y pega esto en tu HTML. Eso es todo.
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js"
@@ -14,72 +20,63 @@ Plugin vanilla JavaScript para un widget de chat de WhatsApp. Sin dependencias, 
 ></script>
 ```
 
-### Opción 2 – GitHub raw CDN
+El widget aparece en la esquina inferior derecha con un botón flotante.
 
-```html
-<script src="https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.min.js"
-  data-phone="573001234567"
-  data-name="Mi Empresa"
-  data-color="#25D366"
-></script>
+---
+
+## CDN Disponible
+
+| CDN | URL |
+|-----|-----|
+| **jsDelivr** (recomendado) | `https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js` |
+| **GitHub Raw** | `https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.min.js` |
+
+**Versión fija** (ej: v1.0.0):
+```
+https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@v1.0.0/whatsapp-bubble.min.js
 ```
 
-### Opción 3 – Descarga local
-
-1. Descarga `whatsapp-bubble.min.js` (o `whatsapp-bubble.js` para desarrollo)
-2. Colócalo en tu servidor (ej: `/js/whatsapp-bubble.min.js`)
-3. Referéncialo en tu HTML
-
-## Uso básico
-
-```html
-<script src="whatsapp-bubble.js"
-  data-phone="573001234567"
-  data-name="Mi Empresa"
-></script>
-```
-
-Eso es todo. El widget aparece en la esquina inferior derecha.
+---
 
 ## Configuración
 
-Todos los parámetros se definen como atributos `data-*` en el tag `<script>`:
+Todos los parámetros se definen como atributos `data-*` en el tag `<script>`.
 
 ### Datos de contacto
 
 | Atributo | Default | Descripción |
-|---|---|---|
+|----------|---------|-------------|
 | `data-phone` | `573001234567` | Número de WhatsApp con código de país (sin `+` ni espacios) |
-| `data-name` | `Soporte` | Nombre que aparece en el header del panel |
-| `data-avatar` | *(none)* | URL de la imagen de perfil. Si falla, muestra iniciales con color de contraste |
+| `data-name` | `Soporte` | Nombre que aparece en el header del chat |
+| `data-avatar` | *(vacío)* | URL de imagen de perfil. Si falla, muestra iniciales automáticamente |
 
 ### Colores y estilo
 
 | Atributo | Default | Descripción |
-|---|---|---|
+|----------|---------|-------------|
 | `data-color` | `#25D366` | Color primario (botón, header, acentos) |
-| `data-font-family` | *(auto)* | Fuente del widget. Si no se define, hereda la del sitio automáticamente |
+| `data-font-family` | *(auto)* | Fuente del widget. Hereda la del sitio si no se define |
 | `data-bubble-size` | `56` | Diámetro del botón flotante en px |
 | `data-panel-width` | `340` | Ancho del panel de chat en px |
 
 ### Icono del botón
 
 | Atributo | Default | Descripción |
-|---|---|---|
-| `data-bubble-icon` | `chat` | Icono del botón flotante. Opciones: `chat`, `whatsapp`, o un string con HTML `<svg>...</svg>` |
+|----------|---------|-------------|
+| `data-bubble-icon` | `chat` | `chat`, `whatsapp`, o SVG inline personalizado |
 
 ### Sonido de notificación
 
 | Atributo | Default | Descripción |
-|---|---|---|
+|----------|---------|-------------|
 | `data-sound` | `none` | Sonido al mostrar el teaser. Opciones: `none`, `pop`, `ding`, `bubble`, `chime`, `slide` |
 
-Los sonidos se generan con Web Audio API (sin archivos externos).
+> Los sonidos se generan con Web Audio API (sin archivos externos). Solo suenan después del primer gesto del usuario (política de autoplay del navegador).
 
 ### Mensajes
 
 | Atributo | Default | Descripción |
-|---|---|---|
+|----------|---------|-------------|
 | `data-greeting` | `Te estábamos esperando...` | Mensaje de bienvenida dentro del chat |
 | `data-default-message` | `Hola, vengo de la web...` | Mensaje que se envía si el usuario escribe vacío |
 | `data-teaser` | `¡Hola! ¿Necesitas ayuda?` | Texto del teaser emergente |
@@ -91,91 +88,24 @@ Los sonidos se generan con Web Audio API (sin archivos externos).
 ### Comportamiento
 
 | Atributo | Default | Descripción |
-|---|---|---|
-| `data-position` | `right` | Posición: `right` o `left` |
-| `data-dismiss` | `none` | Comportamiento al cerrar el teaser: `none` (siempre visible), `session` (no vuelve al refrescar), `persistent` (no vuelve nunca, usa localStorage) |
-| `data-trigger-id` | *(none)* | ID de un elemento que, al hacerse visible en scroll, muestra el teaser |
+|----------|---------|-------------|
+| `data-position` | `right` | Posición del widget: `right` o `left` |
+| `data-dismiss` | `none` | `none` (siempre visible), `session` (no vuelve al refrescar), `persistent` (no vuelve nunca) |
+| `data-trigger-id` | *(vacío)* | ID de un elemento que, al hacerse visible en scroll, muestra el teaser |
 
 ### Accesibilidad
 
 | Atributo | Default | Descripción |
-|---|---|---|
+|----------|---------|-------------|
 | `data-aria-open` | `Abrir chat` | Label de accesibilidad del botón |
 | `data-aria-close` | `Cerrar chat` | Label de accesibilidad al cerrar |
 
-## Avatar con fallback
-
-Si defines `data-avatar` con una URL y la imagen no carga, el widget automáticamente muestra las **iniciales** del nombre sobre un fondo con color de contraste calculado a partir de `data-color`.
-
-```
-data-name="Avanxo"  →  muestra "AV"
-data-name="Soporte"  →  muestra "SO"
-data-name="Mi Tienda"  →  muestra "MT"
-```
-
-No necesitas hacer nada额外 — el fallback es automático.
-
-## Icono del botón
-
-El botón flotante soporta 3 modos:
-
-| Valor | Resultado |
-|---|---|
-| `chat` *(default)* | Icono de burbuja de chat |
-| `whatsapp` | Icono oficial de WhatsApp |
-| `<svg>...</svg>` | Cualquier SVG inline personalizado |
-
-```html
-<!-- Icono de WhatsApp -->
-<script src="whatsapp-bubble.js"
-  data-phone="573001234567"
-  data-name="Mi Empresa"
-  data-bubble-icon="whatsapp"
-></script>
-```
-
-## Dismiss (persistencia del teaser)
-
-Controla qué pasa cuando el usuario cierra el teaser con el botón X:
-
-| Valor | Comportamiento |
-|---|---|
-| `none` *(default)* | El teaser siempre vuelve a aparecer |
-| `session` | No vuelve hasta cerrar el navegador (usa `sessionStorage`) |
-| `persistent` | No vuelve nunca más (usa `localStorage`) |
-
-```html
-<!-- No vuelve nunca más después de cerrar -->
-<script src="whatsapp-bubble.js"
-  data-phone="573001234567"
-  data-name="Mi Empresa"
-  data-dismiss="persistent"
-></script>
-```
-
-## Scroll trigger
-
-El teaser puede aparecer automáticamente cuando el usuario hace scroll hasta una sección específica:
-
-```html
-<!-- El teaser aparece al llegar a #pricing -->
-<section id="pricing">...</section>
-
-<script src="whatsapp-bubble.js"
-  data-phone="573001234567"
-  data-name="Mi Empresa"
-  data-trigger-id="pricing"
-  data-teaser="¿Tienes preguntas sobre pricing?"
-  data-teaser-subtitle="Estamos en línea"
-></script>
-```
-
-Usa `IntersectionObserver` — si el navegador no lo soporta, el teaser se muestra directamente.
+---
 
 ## Ejemplo completo
 
 ```html
-<script src="https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.js"
+<script src="https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js"
   data-phone="573001234567"
   data-name="Avanxo"
   data-avatar="https://example.com/logo.png"
@@ -190,12 +120,56 @@ Usa `IntersectionObserver` — si el navegador no lo soporta, el teaser se muest
   data-teaser-subtitle="Estamos en línea"
   data-panel-width="380"
   data-bubble-size="60"
+  data-sound="pop"
 ></script>
 ```
 
-## Múltiples instancias
+---
 
-Puedes tener varios bubbles en la misma página, cada uno con su propia configuración:
+## Funcionalidades
+
+### Avatar con fallback
+
+Si defines `data-avatar` con una URL y la imagen no carga, automáticamente muestra las **iniciales** del nombre sobre un fondo con color de contraste:
+
+```
+data-name="Avanxo"    →  "AV"
+data-name="Soporte"   →  "SO"
+data-name="Mi Tienda" →  "MT"
+```
+
+### Dismiss (persistencia del teaser)
+
+Controla qué pasa cuando el usuario cierra el teaser con el botón X:
+
+| Valor | Comportamiento |
+|-------|----------------|
+| `none` | El teaser siempre vuelve a aparecer |
+| `session` | No vuelve hasta cerrar el navegador (sessionStorage) |
+| `persistent` | No vuelve nunca más (localStorage) |
+
+### Scroll trigger
+
+El teaser puede aparecer automáticamente cuando el usuario hace scroll hasta una sección:
+
+```html
+<section id="pricing">...</section>
+
+<script src="whatsapp-bubble.js"
+  data-phone="573001234567"
+  data-name="Mi Empresa"
+  data-trigger-id="pricing"
+  data-teaser="¿Tienes preguntas sobre pricing?"
+></script>
+```
+
+### Dark mode
+
+Se adapta automáticamente a `prefers-color-scheme: dark`. Sin configuración adicional.
+
+### Múltiples instancias
+
+Puedes tener varios bubbles en la misma página:
 
 ```html
 <!-- Soporte ventas -->
@@ -216,47 +190,67 @@ Puedes tener varios bubbles en la misma página, cada uno con su propia configur
 ></script>
 ```
 
-## Comportamiento
+---
 
-- **Avatar fallback**: Si la imagen no carga, muestra iniciales con color de contraste automático.
-- **Icono configurable**: `chat` (default), `whatsapp`, o SVG personalizado.
-- **Dismiss**: `none` (siempre visible), `session` ( sessionStorage ), `persistent` (localStorage).
-- **Teaser**: Aparece automáticamente al hacer scroll hasta `data-trigger-id`.
-- **Teclado**: La tecla `Escape` cierra el panel.
-- **Accesibilidad**: `role="dialog"`, `aria-expanded`, `aria-label`, `aria-live`.
-- **Reduced motion**: Desactiva animaciones si el usuario prefiere movimiento reducido.
-- **Fuente heredada**: Detecta la `font-family` del sitio automáticamente.
-- **Sin dependencias**: JavaScript vanilla puro. Zero librerías externas.
-- **Dark mode**: Se adapta automáticamente a `prefers-color-scheme: dark`.
-- **Sonidos**: 5 sonidos via Web Audio API (sin archivos externos). Solo suenan después del primer gesto del usuario (política de autoplay del navegador).
+## API JavaScript
 
-## CDN & GitHub Actions
+Después de cargar el plugin, puedes controlarlo programáticamente:
 
-### Minificación automática
+```javascript
+// Actualizar configuración en tiempo real
+WhatsAppBubble.update({
+  name: 'Nuevo Nombre',
+  color: '#FF5722',
+  greeting: 'Hola, ¿en qué te puedo ayudar?'
+});
 
-Un GitHub Action (`minify.yml`) se ejecuta cada vez que se modifica `whatsapp-bubble.js` en `main`. Genera automáticamente `whatsapp-bubble.min.js` y lo commitea al repositorio.
-
-### Uso como CDN
-
-**jsDelivr** (recomendado, incluye cache global):
-```
-https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@main/whatsapp-bubble.min.js
+// Destruir el widget
+WhatsAppBubble.destroy();
 ```
 
-**GitHub raw**:
-```
-https://raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.min.js
-```
+---
 
-**Ventaja**: Todo el plugin está en un solo archivo autocontenido. Los sonidos se generan via Web Audio API (osciladores), no requiere archivos externos. No hay CORS issues.
+## Características técnicas
+
+- **Sin dependencias**: JavaScript vanilla puro
+- **Un solo archivo**: Todo autocontenido (CSS + JS + sonidos)
+- **Sonidos Web Audio API**: 5 sonidos generados con osciladores, sin archivos externos
+- **Dark mode**: Soporte nativo via `prefers-color-scheme`
+- **Reduced motion**: Desactiva animaciones si el usuario lo prefiere
+- **Fuente heredada**: Detecta la `font-family` del sitio automáticamente
+- **Accesibilidad**: `role="dialog"`, `aria-expanded`, `aria-label`, `aria-live`
+- **Keyboard**: `Escape` cierra el panel
+
+---
+
+## Desarrollo
+
+### Estructura del proyecto
+
+```
+wp-bubble-message/
+├── whatsapp-bubble.js      # Código fuente
+├── whatsapp-bubble.min.js  # Minificado (auto-generado)
+├── demo.html               # Demo con configurador visual
+├── VERSION                 # Versión actual (semver)
+├── memory.md               # Historial del proyecto
+├── LICENSE                 # MIT
+└── .github/workflows/
+    └── minify.yml          # GitHub Action de minificación
+```
 
 ### Versionado
 
-Para fijar una versión específica, usa tags de git:
-```
-https://cdn.jsdelivr.net/gh/Avanxo-Technology/wp-bubble-message@v1.0.0/whatsapp-bubble.min.js
-```
+Este proyecto usa [Semantic Versioning](https://semver.org/):
+
+- **MAJOR**: Cambios breaking en la API o atributos
+- **MINOR**: Nuevas features, atributos adicionales, backward compatible
+- **PATCH**: Bugs fixes, ajustes CSS, documentación
+
+Para bumpear la versión, edita el archivo `VERSION` y haz push. El GitHub Action regenera automáticamente el `.min.js` con el banner comment incluyendo la versión.
+
+---
 
 ## Licencia
 
-MIT
+MIT © [Avanxo Technology](https://github.com/Avanxo-Technology)

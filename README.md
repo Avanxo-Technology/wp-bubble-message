@@ -58,6 +58,14 @@ Todos los parámetros se definen como atributos `data-*` en el tag `<script>`:
 |---|---|---|
 | `data-bubble-icon` | `chat` | Icono del botón flotante. Opciones: `chat`, `whatsapp`, o un string con HTML `<svg>...</svg>` |
 
+### Sonido de notificación
+
+| Atributo | Default | Descripción |
+|---|---|---|
+| `data-sound` | `none` | Sonido al mostrar el teaser. Opciones: `none`, `pop`, `ding`, `bubble`, `chime`, `slide` |
+
+Los sonidos se generan con Web Audio API (sin archivos externos).
+
 ### Mensajes
 
 | Atributo | Default | Descripción |

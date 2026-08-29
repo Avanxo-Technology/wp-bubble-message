@@ -3,302 +3,481 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhatsApp Bubble – Demo</title>
+  <title>WhatsApp Bubble – Generador Visual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
-      min-height: 200vh;
-      padding: 2rem;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #0c0f1a; color: #e2e8f0; min-height: 100vh; }
+
+    /* --- Layout --- */
+    .app { display: flex; min-height: 100vh; }
+    .panel {
+      width: 420px; flex-shrink: 0; background: #141829;
+      border-right: 1px solid #1e2440; padding: 28px 24px;
+      overflow-y: auto; max-height: 100vh; position: sticky; top: 0;
     }
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+    .preview {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 40px; position: relative; overflow: hidden;
     }
-    h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: .5rem; }
-    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 1rem; max-width: 600px; line-height: 1.6; }
-    .scroll-hint {
-      margin-top: 2rem;
-      color: #475569;
-      font-size: .85rem;
-      animation: bounce 2s ease infinite;
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(8px); }
+    .preview-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 70% 80%, rgba(37,211,102,0.06) 0%, transparent 60%),
+                  radial-gradient(ellipse at 20% 20%, rgba(66,133,244,0.04) 0%, transparent 50%);
     }
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      max-width: 1100px;
-      width: 100%;
-      margin: 0 auto;
-    }
-    .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 16px;
-      padding: 1.5rem;
-      transition: border-color .2s;
-    }
-    .card:hover { border-color: #475569; }
-    .card h2 { font-size: 1.1rem; margin-bottom: .5rem; display: flex; align-items: center; gap: 8px; }
-    .card p { color: #94a3b8; font-size: .85rem; line-height: 1.6; margin-bottom: .75rem; }
-    .card code {
-      display: block;
-      padding: .75rem;
-      background: #0f172a;
-      border-radius: 8px;
-      font-size: .7rem;
-      color: #a5b4fc;
-      white-space: pre;
-      overflow-x: auto;
-      line-height: 1.5;
-    }
-    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .dot.green  { background: #25D366; }
-    .dot.blue   { background: #4285F4; }
-    .dot.red    { background: #E53E3E; }
-    .dot.purple { background: #7C5CFC; }
-    .dot.orange { background: #F59E0B; }
+    /* --- Panel header --- */
+    .panel-header { margin-bottom: 28px; }
+    .panel-header h1 { font-size: 18px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+    .panel-header p { font-size: 13px; color: #64748b; }
 
-    /* --- Trigger section --- */
-    #scroll-trigger {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      border-top: 1px solid #1e293b;
-    }
-    #scroll-trigger h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: .5rem;
-    }
-    #scroll-trigger p {
-      color: #94a3b8;
-      font-size: 1rem;
-      max-width: 500px;
-      line-height: 1.6;
-    }
-    .trigger-badge {
-      margin-top: 1.5rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: 999px;
-      background: #7C5CFC;
-      color: #fff;
-      font-size: .85rem;
-      font-weight: 600;
+    /* --- Section --- */
+    .section { margin-bottom: 24px; }
+    .section-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: #475569; margin-bottom: 12px;
+      padding-bottom: 8px; border-bottom: 1px solid #1e2440;
     }
 
-    .note {
-      margin-top: 4rem;
-      padding: 2rem 0;
-      border-top: 1px solid #1e293b;
-      color: #64748b;
-      font-size: .85rem;
-      text-align: center;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.7;
+    /* --- Form fields --- */
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block; font-size: 12px; font-weight: 600; color: #94a3b8;
+      margin-bottom: 6px;
     }
-    a { color: #60a5fa; }
+    .field input[type="text"],
+    .field input[type="url"],
+    .field input[type="number"],
+    .field select {
+      width: 100%; height: 40px; padding: 0 12px;
+      background: #0c0f1a; border: 1px solid #1e2440; border-radius: 8px;
+      color: #e2e8f0; font-size: 13px; font-family: inherit;
+      outline: none; transition: border-color .2s;
+    }
+    .field input:focus, .field select:focus { border-color: #3b82f6; }
+    .field input::placeholder { color: #334155; }
+    .field select { cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
+    .field-row { display: flex; gap: 12px; }
+    .field-row .field { flex: 1; }
 
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: .65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .04em;
+    /* --- Color picker --- */
+    .color-field { display: flex; align-items: center; gap: 10px; }
+    .color-field input[type="color"] {
+      width: 40px; height: 40px; border: 2px solid #1e2440; border-radius: 10px;
+      cursor: pointer; background: none; padding: 2px;
     }
-    .badge-new { background: #16a34a20; color: #4ade80; }
+    .color-field input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-field input[type="color"]::-webkit-color-swatch { border: none; border-radius: 7px; }
+    .color-field input[type="text"] { flex: 1; }
+
+    /* --- Sound buttons --- */
+    .sound-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .sound-btn {
+      height: 38px; border-radius: 8px; border: 1px solid #1e2440;
+      background: #0c0f1a; color: #94a3b8; font-size: 12px; font-weight: 600;
+      font-family: inherit; cursor: pointer; transition: all .15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .sound-btn:hover { border-color: #334155; color: #e2e8f0; }
+    .sound-btn.active { border-color: var(--wa-demo-color, #25D366); background: rgba(37,211,102,0.1); color: #25D366; }
+    .sound-btn svg { width: 14px; height: 14px; }
+
+    /* --- Code output --- */
+    .code-output {
+      background: #0a0d16; border: 1px solid #1e2440; border-radius: 10px;
+      padding: 16px; margin-top: 24px; position: relative;
+    }
+    .code-output pre {
+      font-size: 11px; line-height: 1.6; color: #94a3b8;
+      white-space: pre-wrap; word-break: break-all; font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .code-output .tag { color: #7dd3fc; }
+    .code-output .attr { color: #c4b5fd; }
+    .code-output .val { color: #86efac; }
+    .copy-btn {
+      position: absolute; top: 10px; right: 10px;
+      height: 30px; padding: 0 12px; border-radius: 6px;
+      background: #1e2440; border: 1px solid #2a3050; color: #94a3b8;
+      font-size: 11px; font-weight: 600; font-family: inherit; cursor: pointer;
+      transition: all .15s;
+    }
+    .copy-btn:hover { background: #2a3050; color: #e2e8f0; }
+
+    /* --- Preview area --- */
+    .preview-frame {
+      width: 375px; height: 680px; background: #1a1f35;
+      border-radius: 24px; border: 2px solid #1e2440;
+      position: relative; overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    }
+    .preview-phone-bar {
+      height: 44px; background: #141829; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #475569; font-weight: 600;
+    }
+    .preview-content {
+      padding: 20px; height: calc(100% - 44px);
+      display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .preview-hero {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; padding: 20px;
+    }
+    .preview-hero h2 { font-size: 20px; font-weight: 700; color: #f8fafc; margin-bottom: 8px; }
+    .preview-hero p { font-size: 13px; color: #64748b; line-height: 1.5; }
+    .preview-hero .scroll-hint {
+      margin-top: 24px; font-size: 11px; color: #334155;
+      animation: float 2s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+    /* --- Trigger section in preview --- */
+    #scroll-trigger-preview {
+      min-height: 200px; display: flex; align-items: center;
+      justify-content: center; text-align: center; padding: 20px;
+      border-top: 1px solid #1e2440;
+    }
+    #scroll-trigger-preview p { font-size: 12px; color: #475569; }
+
+    /* --- Responsive --- */
+    @media (max-width: 900px) {
+      .app { flex-direction: column; }
+      .panel { width: 100%; max-height: none; position: static; }
+      .preview { min-height: 700px; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- ============================================================
-       HERO
-       ============================================================ -->
-  <section class="hero">
-    <h1>WhatsApp Bubble</h1>
-    <p class="subtitle">Plugin vanilla JS configurable. Usa el mismo script con diferentes colores, avatares, iconos y comportamientos.</p>
+<div class="app">
 
-    <div class="cards">
-
-      <!-- 1. Default green -->
-      <div class="card">
-        <h2><span class="dot green"></span> Verde clásico</h2>
-        <p>Sin avatar (usa iniciales), icono de chat por defecto, sin persistencia.</p>
-        <code>&lt;script src="whatsapp-bubble.js"
-  data-phone="573001234567"
-  data-name="Mi Tienda"
-  data-color="#25D366"
-  data-teaser="¡Hola! ¿Necesitas ayuda?"
-&gt;&lt;/script&gt;</code>
-      </div>
-
-      <!-- 2. Blue with WhatsApp icon -->
-      <div class="card">
-        <h2><span class="dot blue"></span> Azul + icono WhatsApp</h2>
-        <p>Icono personalizado, avatar con fallback a iniciales, posición izquierda.</p>
-        <code>&lt;script src="whatsapp-bubble.js"
-  data-phone="573009876543"
-  data-name="Avanxo"
-  data-avatar="broken-url.jpg"
-  data-color="#4285F4"
-  data-bubble-icon="whatsapp"
-  data-position="left"
-  data-teaser="¿Necesitas asesoría?"
-&gt;&lt;/script&gt;</code>
-      </div>
-
-      <!-- 3. Red persistent dismiss -->
-      <div class="card">
-        <h2><span class="dot red"></span> Rojo + persistente <span class="badge badge-new">NEW</span></h2>
-        <p>Al cerrar el teaser con X, no vuelve nunca más (localStorage).</p>
-        <code>&lt;script src="whatsapp-bubble.js"
-  data-phone="573001112233"
-  data-name="Soporte"
-  data-color="#E53E3E"
-  data-dismiss="persistent"
-  data-bubble-size="64"
-&gt;&lt;/script&gt;</code>
-      </div>
-
-      <!-- 4. Purple with scroll trigger -->
-      <div class="card">
-        <h2><span class="dot purple"></span> Púrpura + scroll trigger</h2>
-        <p>El teaser aparece solo cuando haces scroll hasta la sección #scroll-trigger.</p>
-        <code>&lt;script src="whatsapp-bubble.js"
-  data-phone="573004445566"
-  data-name="Equipo Dev"
-  data-color="#7C5CFC"
-  data-avatar="https://i.pravatar.cc/80?img=12"
-  data-bubble-icon="whatsapp"
-  data-trigger-id="scroll-trigger"
-  data-dismiss="session"
-&gt;&lt;/script&gt;</code>
-      </div>
-
-      <!-- 5. Orange session dismiss -->
-      <div class="card">
-        <h2><span class="dot orange"></span> Naranja + sesión</h2>
-        <p>Al cerrar el teaser, no vuelve hasta cerrar el navegador (sessionStorage).</p>
-        <code>&lt;script src="whatsapp-bubble.js"
-  data-phone="573005556677"
-  data-name="Ventas"
-  data-color="#F59E0B"
-  data-dismiss="session"
-  data-teaser="¿Te interesa un plan?"
-  data-teaser-subtitle="Hablemos de pricing"
-&gt;&lt;/script&gt;</code>
-      </div>
-
+  <!-- ============ CONFIG PANEL ============ -->
+  <div class="panel">
+    <div class="panel-header">
+      <h1>Generador de Bubble</h1>
+      <p>Configura y visualiza en tiempo real.</p>
     </div>
 
-    <p class="scroll-hint">↓ Scroll para probar el trigger automático ↓</p>
-  </section>
+    <!-- Datos -->
+    <div class="section">
+      <div class="section-title">Datos de contacto</div>
+      <div class="field">
+        <label>Teléfono WhatsApp</label>
+        <input type="text" id="c-phone" value="573001234567" placeholder="573001234567">
+      </div>
+      <div class="field">
+        <label>Nombre del perfil</label>
+        <input type="text" id="c-name" value="Mi Empresa" placeholder="Soporte">
+      </div>
+      <div class="field">
+        <label>URL del avatar (vacío = iniciales)</label>
+        <input type="url" id="c-avatar" value="" placeholder="https://example.com/logo.png">
+      </div>
+    </div>
 
-  <!-- ============================================================
-       SCROLL TRIGGER SECTION
-       ============================================================ -->
-  <section id="scroll-trigger">
-    <h2>¡Hola! Llegaste al trigger</h2>
-    <p>El teaser del bubble púrpura apareció automáticamente al hacer scroll hasta aquí. Esto usa <code>IntersectionObserver</code> y el atributo <code>data-trigger-id="scroll-trigger"</code>.</p>
-    <span class="trigger-badge">↑ Teaser activado por scroll</span>
-  </section>
+    <!-- Colores -->
+    <div class="section">
+      <div class="section-title">Color y estilo</div>
+      <div class="field">
+        <label>Color primario</label>
+        <div class="color-field">
+          <input type="color" id="c-color-picker" value="#25D366">
+          <input type="text" id="c-color" value="#25D366" placeholder="#25D366">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Icono del botón</label>
+          <select id="c-icon">
+            <option value="chat">Chat (burbuja)</option>
+            <option value="whatsapp" selected>WhatsApp</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tamaño burbuja</label>
+          <input type="number" id="c-size" value="56" min="40" max="80" step="2">
+        </div>
+      </div>
+    </div>
 
-  <!-- ============================================================
-       BOTTOM SPACER
-       ============================================================ -->
-  <section style="min-height:50vh;display:flex;align-items:center;justify-content:center;">
-    <p style="color:#475569;font-size:.9rem;">Fin del demo. Prueba los 5 bubbles en las esquinas.</p>
-  </section>
+    <!-- Sonido -->
+    <div class="section">
+      <div class="section-title">Sonido de notificación</div>
+      <div class="sound-grid">
+        <button class="sound-btn" data-sound="none" onclick="pickSound(this)">Sin sonido</button>
+        <button class="sound-btn active" data-sound="pop" onclick="pickSound(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg> Pop
+        </button>
+        <button class="sound-btn" data-sound="ding" onclick="pickSound(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg> Ding
+        </button>
+        <button class="sound-btn" data-sound="bubble" onclick="pickSound(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg> Bubble
+        </button>
+        <button class="sound-btn" data-sound="chime" onclick="pickSound(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> Chime
+        </button>
+        <button class="sound-btn" data-sound="slide" onclick="pickSound(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg> Slide
+        </button>
+      </div>
+    </div>
 
-  <p class="note">
-    Cada <code>&lt;script&gt;</code> crea su propio widget independiente.<br>
-    Usa GitHub como CDN: <a href="https://github.com/Avanxo-Technology/wp-bubble-message">github.com/Avanxo-Technology/wp-bubble-message</a>
-  </p>
+    <!-- Mensajes -->
+    <div class="section">
+      <div class="section-title">Mensajes</div>
+      <div class="field">
+        <label>Saludo del chat</label>
+        <input type="text" id="c-greeting" value="Te estábamos esperando. Cuéntanos en qué te podemos ayudar.">
+      </div>
+      <div class="field">
+        <label>Mensaje por defecto</label>
+        <input type="text" id="c-default" value="Hola, vengo de la web y quiero más información.">
+      </div>
+      <div class="field">
+        <label>Texto del teaser</label>
+        <input type="text" id="c-teaser" value="¡Hola! ¿Necesitas ayuda?">
+      </div>
+      <div class="field">
+        <label>Subtítulo del teaser</label>
+        <input type="text" id="c-teaser-sub" value="Escríbenos por WhatsApp">
+      </div>
+    </div>
 
-  <!-- ============================================================
-       DEMO: 5 bubbles running simultaneously
-       ============================================================ -->
+    <!-- Comportamiento -->
+    <div class="section">
+      <div class="section-title">Comportamiento</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Posición</label>
+          <select id="c-position">
+            <option value="right" selected>Derecha</option>
+            <option value="left">Izquierda</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Al cerrar teaser</label>
+          <select id="c-dismiss">
+            <option value="none" selected>Siempre visible</option>
+            <option value="session">No vuelve (refresh)</option>
+            <option value="persistent">No vuelve nunca</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Trigger de scroll (ID del elemento, vacío = sin trigger)</label>
+        <input type="text" id="c-trigger" value="scroll-trigger-preview" placeholder="hero">
+      </div>
+    </div>
 
-  <!-- 1. Green default – no avatar (shows initials), default chat icon -->
-  <script src="whatsapp-bubble.js"
-    data-phone="573001234567"
-    data-name="Mi Tienda"
-    data-color="#25D366"
-    data-teaser="¡Hola! ¿Necesitas ayuda?"
-    data-teaser-subtitle="Escríbenos por WhatsApp"
-  ></script>
+    <!-- Code output -->
+    <div class="code-output">
+      <button class="copy-btn" onclick="copyCode()">Copiar</button>
+      <pre id="code-output"></pre>
+    </div>
+  </div>
 
-  <!-- 2. Blue – broken avatar (fallback to initials 'AV'), WhatsApp icon, left -->
-  <script src="whatsapp-bubble.js"
-    data-phone="573009876543"
-    data-name="Avanxo"
-    data-avatar="https://broken-url-example.com/does-not-exist.jpg"
-    data-color="#4285F4"
-    data-bubble-icon="whatsapp"
-    data-position="left"
-    data-teaser="¿Necesitas asesoría?"
-    data-teaser-subtitle="Estamos en línea"
-    data-greeting="Te estábamos esperando. Cuéntanos hacia dónde quieres llevar tu marca."
-    data-bubble-size="60"
-  ></script>
+  <!-- ============ PREVIEW ============ -->
+  <div class="preview">
+    <div class="preview-bg"></div>
+    <div class="preview-frame">
+      <div class="preview-phone-bar">Mi Empresa — Demo</div>
+      <div class="preview-content" id="preview-root">
+        <div class="preview-hero">
+          <h2>Tu empresa avanza</h2>
+          <p>Configura el bubble a la izquierda y mira los cambios en tiempo real.</p>
+          <div class="scroll-hint">↓ Scroll para trigger ↓</div>
+        </div>
+        <div id="scroll-trigger-preview">
+          <p>Sección trigger — el teaser aparece al llegar aquí</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- 3. Red – persistent dismiss (localStorage), large bubble -->
-  <script src="whatsapp-bubble.js"
-    data-phone="573001112233"
-    data-name="Soporte"
-    data-color="#E53E3E"
-    data-dismiss="persistent"
-    data-bubble-size="64"
-    data-input-placeholder="¿Cómo te ayudamos?"
-    data-footer-note="Tu mensaje llega directo por WhatsApp."
-    data-teaser="¿Tienes un problema?"
-    data-teaser-subtitle="Resolvemos tu caso"
-  ></script>
+</div>
 
-  <!-- 4. Purple – scroll trigger + session dismiss + WhatsApp icon + avatar -->
-  <script src="whatsapp-bubble.js"
-    data-phone="573004445566"
-    data-name="Equipo Dev"
-    data-color="#7C5CFC"
-    data-avatar="https://i.pravatar.cc/80?img=12"
-    data-bubble-icon="whatsapp"
-    data-trigger-id="scroll-trigger"
-    data-dismiss="session"
-    data-teaser="¡Hola dev! ¿Cómo estás?"
-    data-teaser-subtitle="Hablemos de tu proyecto"
-    data-panel-width="380"
-  ></script>
+<!-- ============ PLUGIN CONTAINER ============ -->
+<div id="bubble-mount"></div>
 
-  <!-- 5. Orange – session dismiss, no trigger (teaser shows immediately) -->
-  <script src="whatsapp-bubble.js"
-    data-phone="573005556677"
-    data-name="Ventas"
-    data-color="#F59E0B"
-    data-dismiss="session"
-    data-teaser="¿Te interesa un plan?"
-    data-teaser-subtitle="Hablemos de pricing"
-  ></script>
+<script>
+  /* -----------------------------------------------------------
+     Sound synthesis (same as plugin)
+     ----------------------------------------------------------- */
+  var audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+    return audioCtx;
+  }
+  var SOUNDS = {
+    pop: function() {
+      var c=getAudioCtx();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(600,c.currentTime);o.frequency.exponentialRampToValueAtTime(300,c.currentTime+0.12);g.gain.setValueAtTime(0.25,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.15);o.start(c.currentTime);o.stop(c.currentTime+0.15);
+    },
+    ding: function() {
+      var c=getAudioCtx();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(880,c.currentTime);o.frequency.setValueAtTime(1100,c.currentTime+0.08);g.gain.setValueAtTime(0.2,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.25);o.start(c.currentTime);o.stop(c.currentTime+0.25);
+    },
+    bubble: function() {
+      var c=getAudioCtx();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(400,c.currentTime);o.frequency.exponentialRampToValueAtTime(800,c.currentTime+0.06);o.frequency.exponentialRampToValueAtTime(500,c.currentTime+0.14);g.gain.setValueAtTime(0.2,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.18);o.start(c.currentTime);o.stop(c.currentTime+0.18);
+    },
+    chime: function() {
+      var c=getAudioCtx();if(!c)return;[523,659,784].forEach(function(f,i){var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,c.currentTime+i*0.08);g.gain.linearRampToValueAtTime(0.15,c.currentTime+i*0.08+0.02);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+i*0.08+0.2);o.start(c.currentTime+i*0.08);o.stop(c.currentTime+i*0.08+0.2);});
+    },
+    slide: function() {
+      var c=getAudioCtx();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.setValueAtTime(300,c.currentTime);o.frequency.exponentialRampToValueAtTime(600,c.currentTime+0.1);g.gain.setValueAtTime(0.18,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.12);o.start(c.currentTime);o.stop(c.currentTime+0.12);
+    }
+  };
+
+  var currentSound = 'pop';
+  function pickSound(btn) {
+    document.querySelectorAll('.sound-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    currentSound = btn.dataset.sound;
+    if (SOUNDS[currentSound]) SOUNDS[currentSound]();
+    rebuild();
+  }
+
+  /* -----------------------------------------------------------
+     Live config
+     ----------------------------------------------------------- */
+  var els = {};
+  ['phone','name','avatar','color','color-picker','icon','size','greeting','default','teaser','teaser-sub','position','dismiss','trigger'].forEach(function(k) {
+    els[k] = document.getElementById('c-' + k);
+  });
+
+  /* Sync color picker ↔ text */
+  els['color-picker'].addEventListener('input', function() { els.color.value = this.value; rebuild(); });
+  els.color.addEventListener('input', function() { els['color-picker'].value = this.value; rebuild(); });
+
+  /* Rebuild on any change */
+  document.querySelectorAll('.panel input, .panel select').forEach(function(el) {
+    el.addEventListener('input', rebuild);
+  });
+
+  var bubbleScript = null;
+  var currentStyle = null;
+
+  function getConfig() {
+    return {
+      phone: els.phone.value || '573001234567',
+      name: els.name.value || 'Soporte',
+      avatar: els.avatar.value,
+      color: els.color.value || '#25D366',
+      icon: els.icon.value,
+      size: els.size.value || '56',
+      greeting: els.greeting.value || 'Te estábamos esperando.',
+      defaultMessage: els.default.value || 'Hola, vengo de la web.',
+      teaser: els.teaser.value || '¡Hola!',
+      teaserSub: els['teaser-sub'].value || 'Escríbenos',
+      position: els.position.value,
+      dismiss: els.dismiss.value,
+      trigger: els.trigger.value,
+      sound: currentSound,
+    };
+  }
+
+  function rebuild() {
+    var c = getConfig();
+    var root = document.getElementById('preview-root');
+
+    /* Remove old plugin elements */
+    root.querySelectorAll('.wa-root').forEach(function(el){el.remove()});
+
+    /* Inject plugin */
+    if (bubbleScript) bubbleScript.remove();
+    if (currentStyle) currentStyle.remove();
+
+    /* Build minimal inline version for preview */
+    var iframe = document.createElement('div');
+    iframe.id = 'bubble-mount-preview';
+    root.appendChild(iframe);
+
+    /* Create script tag with data attrs */
+    var s = document.createElement('script');
+    s.src = 'whatsapp-bubble.js';
+    s.dataset.phone = c.phone;
+    s.dataset.name = c.name;
+    if (c.avatar) s.dataset.avatar = c.avatar;
+    s.dataset.color = c.color;
+    s.dataset.bubbleIcon = c.icon;
+    s.dataset.bubbleSize = c.size;
+    s.dataset.greeting = c.greeting;
+    s.dataset.defaultMessage = c.defaultMessage;
+    s.dataset.teaser = c.teaser;
+    s.dataset.teaserSubtitle = c.teaserSub;
+    s.dataset.position = c.position;
+    s.dataset.dismiss = c.dismiss;
+    s.dataset.sound = c.sound;
+    if (c.trigger) s.dataset.triggerId = c.trigger;
+    s.dataset.panelWidth = '320';
+
+    /* Append to preview frame, not body */
+    root.appendChild(s);
+    bubbleScript = s;
+
+    updateCode(c);
+  }
+
+  function updateCode(c) {
+    var lines = [];
+    lines.push('<script src="whatsapp-bubble.js"');
+    lines.push('  data-phone="' + c.phone + '"');
+    lines.push('  data-name="' + c.name + '"');
+    if (c.avatar) lines.push('  data-avatar="' + c.avatar + '"');
+    lines.push('  data-color="' + c.color + '"');
+    if (c.icon !== 'chat') lines.push('  data-bubble-icon="' + c.icon + '"');
+    if (c.size !== '56') lines.push('  data-bubble-size="' + c.size + '"');
+    if (c.sound !== 'none') lines.push('  data-sound="' + c.sound + '"');
+    lines.push('  data-position="' + c.position + '"');
+    if (c.dismiss !== 'none') lines.push('  data-dismiss="' + c.dismiss + '"');
+    if (c.trigger) lines.push('  data-trigger-id="' + c.trigger + '"');
+    lines.push('  data-greeting="' + c.greeting + '"');
+    lines.push('  data-default-message="' + c.defaultMessage + '"');
+    lines.push('  data-teaser="' + c.teaser + '"');
+    lines.push('  data-teaser-subtitle="' + c.teaserSub + '"');
+    lines.push('></' + 'script>');
+
+    var raw = lines.join('\n');
+    var highlighted = raw
+      .replace(/(&lt;|<)(\/?script)/g, '<$2')
+      .replace(/([\w-]+)=/g, '<span class="attr">$1</span>=')
+      .replace(/"([^"]*)"/g, '"<span class="val">$1</span>"')
+      .replace(/(<\/?)(script)/g, '<span class="tag">$1$2</span>');
+
+    document.getElementById('code-output').innerHTML = highlighted;
+  }
+
+  function copyCode() {
+    var c = getConfig();
+    var lines = [];
+    lines.push('<script src="whatsapp-bubble.js"');
+    lines.push('  data-phone="' + c.phone + '"');
+    lines.push('  data-name="' + c.name + '"');
+    if (c.avatar) lines.push('  data-avatar="' + c.avatar + '"');
+    lines.push('  data-color="' + c.color + '"');
+    if (c.icon !== 'chat') lines.push('  data-bubble-icon="' + c.icon + '"');
+    if (c.size !== '56') lines.push('  data-bubble-size="' + c.size + '"');
+    if (c.sound !== 'none') lines.push('  data-sound="' + c.sound + '"');
+    lines.push('  data-position="' + c.position + '"');
+    if (c.dismiss !== 'none') lines.push('  data-dismiss="' + c.dismiss + '"');
+    if (c.trigger) lines.push('  data-trigger-id="' + c.trigger + '"');
+    lines.push('  data-greeting="' + c.greeting + '"');
+    lines.push('  data-default-message="' + c.defaultMessage + '"');
+    lines.push('  data-teaser="' + c.teaser + '"');
+    lines.push('  data-teaser-subtitle="' + c.teaserSub + '"');
+    lines.push('><\/script>');
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copiado!';
+      setTimeout(function(){ btn.textContent = 'Copiar'; }, 1500);
+    });
+  }
+
+  /* Initial build */
+  rebuild();
+</script>
 
 </body>
 </html>

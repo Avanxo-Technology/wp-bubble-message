@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Bubble – Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: .5rem; }
+    .subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 3rem; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 960px; width: 100%; }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 2rem;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: #475569; }
+    .card h2 { font-size: 1.25rem; margin-bottom: .75rem; }
+    .card p { color: #94a3b8; font-size: .9rem; line-height: 1.6; }
+    .card code {
+      display: block;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #0f172a;
+      border-radius: 8px;
+      font-size: .75rem;
+      color: #a5b4fc;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .dot.green  { background: #25D366; }
+    .dot.blue   { background: #4285F4; }
+    .dot.red    { background: #E53E3E; }
+    .dot.purple { background: #7C5CFC; }
+    .note { margin-top: 3rem; color: #64748b; font-size: .85rem; text-align: center; max-width: 600px; line-height: 1.6; }
+    a { color: #60a5fa; }
+  </style>
+</head>
+<body>
+
+  <h1>WhatsApp Bubble</h1>
+  <p class="subtitle">Plugin vanilla JS configurable. Usa el mismo script con diferentes colores, avatares y mensajes.</p>
+
+  <div class="cards">
+    <div class="card">
+      <h2><span class="dot green"></span>Verde por defecto</h2>
+      <p>El color clásico de WhatsApp. Sin avatar, con saludo y teaser personalizado.</p>
+      <code>&lt;script src="whatsapp-bubble.js"
+  data-phone="573001234567"
+  data-name="Mi Tienda"
+  data-color="#25D366"
+  data-greeting="¡Hola! ¿En qué te ayudamos?"
+&gtgt;&lt;/script&gt;</code>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot blue"></span>Azul corporativo</h2>
+      <p>Con avatar, mensaje por defecto y posición a la izquierda.</p>
+      <code>&lt;script src="whatsapp-bubble.js"
+  data-phone="573009876543"
+  data-name="Avanxo"
+  data-avatar="https://avanxo.dev/static/avanxo-favicon.webp"
+  data-color="#4285F4"
+  data-position="left"
+  data-teaser="¿Necesitas asesoría?"
+  data-teaser-subtitle="Estamos en línea"
+&gtgt;&lt;/script&gt;</code>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot red"></span>Rojo llamativo</h2>
+      <p>Tamaño de burbuja personalizado, placeholder y nota al pie.</p>
+      <code>&lt;script src="whatsapp-bubble.js"
+  data-phone="573001112233"
+  data-name="Soporte"
+  data-color="#E53E3E"
+  data-bubble-size="64"
+  data-input-placeholder="¿Cómo te ayudamos?"
+  data-footer-note="Tu mensaje llega directo por WhatsApp."
+&gtgt;&lt;/script&gt;</code>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot purple"></span>Púrpura elegante</h2>
+      <p>Teaser automático al hacer scroll, con trigger y recordatorio de sesión.</p>
+      <code>&lt;script src="whatsapp-bubble.js"
+  data-phone="573004445566"
+  data-name="Equipo Dev"
+  data-color="#7C5CFC"
+  data-avatar="https://i.pravatar.cc/80?img=12"
+  data-teaser="¡Hola dev! 👋"
+  data-teaser-subtitle="Hablemos de tu proyecto"
+  data-trigger-id="hero"
+  data-remember="true"
+  data-panel-width="380"
+&gt;&lt;/script&gt;</code>
+    </div>
+  </div>
+
+  <p class="note">
+    Cada <code>&lt;script&gt;</code> crea su propio widget independiente.
+    Puedes tener varios en la misma página sin conflictos.<br>
+    Usa GitHub como CDN: <a href="#">raw.githubusercontent.com/Avanxo-Technology/wp-bubble-message/main/whatsapp-bubble.js</a>
+  </p>
+
+  <!-- ============================================================
+       DEMO: 4 bubbles running simultaneously
+       ============================================================ -->
+
+  <!-- 1. Green default -->
+  <script src="whatsapp-bubble.js"
+    data-phone="573001234567"
+    data-name="Mi Tienda"
+    data-color="#25D366"
+    data-greeting="¡Hola! ¿En qué te ayudamos?"
+    data-teaser="¡Hola! ¿Necesitas ayuda?"
+    data-teaser-subtitle="Escríbenos por WhatsApp"
+  ></script>
+
+  <!-- 2. Blue corporate (left) -->
+  <script src="whatsapp-bubble.js"
+    data-phone="573009876543"
+    data-name="Avanxo"
+    data-avatar="https://avanxo.dev/static/avanxo-favicon.webp"
+    data-color="#4285F4"
+    data-position="left"
+    data-teaser="¿Necesitas asesoría?"
+    data-teaser-subtitle="Estamos en línea"
+    data-greeting="Te estábamos esperando. Cuéntanos hacia dónde quieres llevar tu marca."
+    data-bubble-size="60"
+  ></script>
+
+  <!-- 3. Red -->
+  <script src="whatsapp-bubble.js"
+    data-phone="573001112233"
+    data-name="Soporte"
+    data-color="#E53E3E"
+    data-bubble-size="64"
+    data-input-placeholder="¿Cómo te ayudamos?"
+    data-footer-note="Tu mensaje llega directo por WhatsApp."
+    data-teaser="¿Tienes un problema?"
+    data-teaser-subtitle="Resolvemos tu caso"
+  ></script>
+
+  <!-- 4. Purple (with avatar + session remember) -->
+  <script src="whatsapp-bubble.js"
+    data-phone="573004445566"
+    data-name="Equipo Dev"
+    data-color="#7C5CFC"
+    data-avatar="https://i.pravatar.cc/80?img=12"
+    data-teaser="¡Hola dev! ¿Cómo estás?"
+    data-teaser-subtitle="Hablemos de tu proyecto"
+    data-trigger-id="hero"
+    data-remember="true"
+    data-panel-width="380"
+  ></script>
+
+</body>
+</html>

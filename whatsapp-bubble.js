@@ -40,8 +40,16 @@
     footerNote:        scriptEl?.getAttribute('data-footer-note')       || 'Se abre WhatsApp con tu mensaje listo para enviar.',
     ariaLabelOpen:     scriptEl?.getAttribute('data-aria-open')         || 'Abrir chat',
     ariaLabelClose:    scriptEl?.getAttribute('data-aria-close')        || 'Cerrar chat',
-    fontFamily:        scriptEl?.getAttribute('data-font-family')       || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    fontFamily:        scriptEl?.getAttribute('data-font-family')       || '',
   };
+
+  /* Auto-detect site font if not explicitly set */
+  if (!cfg.fontFamily) {
+    try { cfg.fontFamily = getComputedStyle(document.body).fontFamily; } catch (e) { /* noop */ }
+  }
+  if (!cfg.fontFamily) {
+    cfg.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+  }
 
   /* Derived colour helpers */
   function darken(hex, pct) {
@@ -59,7 +67,14 @@
    * 2. Build CSS (scoped with unique prefix)
    * ----------------------------------------------------------- */
   var CSS = /* css */ `
-    /* ---------- Reset scoped to the shadow ---------- */
+    /* ---------- Root ---------- */
+    .wa-root {
+      --wa-font: ${cfg.fontFamily};
+      --wa-color: ${cfg.color};
+      --wa-color-hover: ${darken(cfg.color, 0.1)};
+    }
+
+    /* ---------- Reset scoped to the root ---------- */
     .wa-root *, .wa-root *::before, .wa-root *::after {
       box-sizing: border-box;
       margin: 0;
@@ -104,7 +119,7 @@
     .wa-header {
       display: flex; align-items: center; gap: 12px;
       padding: 14px 16px;
-      background: ${cfg.color};
+      background: var(--wa-color);
       color: #fff;
     }
     .wa-header-avatar {
@@ -117,13 +132,13 @@
     .wa-header-info { flex: 1; min-width: 0; }
     .wa-header-name {
       font-size: 15px; font-weight: 600; line-height: 1.3;
-      font-family: ${cfg.fontFamily};
+      font-family: var(--wa-font);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .wa-header-status {
       display: flex; align-items: center; gap: 6px;
       font-size: 12px; line-height: 1.3; opacity: .9;
-      font-family: ${cfg.fontFamily};
+      font-family: var(--wa-font);
     }
     .wa-dot-online {
       width: 8px; height: 8px; border-radius: 50%;
@@ -154,7 +169,7 @@
       border-radius: 12px 12px 12px 4px;
       background: #f3f4f6;
       font-size: 14px; line-height: 1.5; color: #1f2937;
-      font-family: ${cfg.fontFamily};
+      font-family: var(--wa-font);
     }
 
     /* --- Input area --- */
@@ -168,27 +183,27 @@
       border-radius: 10px;
       border: 1px solid #d1d5db;
       background: #fff; color: #1f2937;
-      font-size: 14px; font-family: ${cfg.fontFamily};
+      font-size: 14px; font-family: var(--wa-font);
       outline: none;
       transition: border-color .2s;
     }
     .wa-input::placeholder { color: #9ca3af; }
-    .wa-input:focus { border-color: ${cfg.color}; }
+    .wa-input:focus {       border-color: var(--wa-color); }
 
     .wa-send-btn {
       width: 44px; height: 44px; flex-shrink: 0;
       border-radius: 50%;
-      background: ${cfg.color}; color: #fff;
+      background: var(--wa-color); color: #fff;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       transition: background .2s;
     }
-    .wa-send-btn:hover { background: ${darken(cfg.color, 0.1)}; }
+    .wa-send-btn:hover { background: var(--wa-color-hover); }
 
     .wa-footer-note {
       margin-top: 10px;
       text-align: center; font-size: 11px; color: #9ca3af;
-      font-family: ${cfg.fontFamily};
+      font-family: var(--wa-font);
     }
 
     /* ---------- Teaser ---------- */
@@ -218,22 +233,22 @@
       display: flex; align-items: center; gap: 8px;
       font-size: 11px; font-weight: 700; letter-spacing: .06em;
       text-transform: uppercase; color: ${cfg.color};
-      font-family: ${cfg.fontFamily};
+      font-family: var(--wa-font);
     }
     .wa-teaser-label-dot {
       width: 6px; height: 6px; border-radius: 50%;
-      background: ${cfg.color}; flex-shrink: 0;
+      background: var(--wa-color); flex-shrink: 0;
     }
     .wa-teaser-title {
       display: block; margin-top: 8px;
       font-size: 14px; font-weight: 600; line-height: 1.35;
       color: #111827;
-      font-family: ${cfg.fontFamily};
+      font-family: var(--wa-font);
     }
     .wa-teaser-sub {
       display: block; margin-top: 6px;
       font-size: 13px; line-height: 1.45; color: #6b7280;
-      font-family: ${cfg.fontFamily};
+      font-family: var(--wa-font);
     }
 
     /* ---------- Bubble button ---------- */
@@ -241,14 +256,14 @@
       pointer-events: auto;
       width: ${cfg.bubbleSize}px; height: ${cfg.bubbleSize}px;
       border-radius: 50%;
-      background: ${cfg.color};
+      background: var(--wa-color);
       color: #fff;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       box-shadow: 0 6px 22px rgba(0,0,0,0.28);
       transition: background .2s, transform .2s;
     }
-    .wa-bubble:hover { background: ${darken(cfg.color, 0.1)}; transform: scale(1.06); }
+    .wa-bubble:hover { background: var(--wa-color-hover); transform: scale(1.06); }
     .wa-bubble:active { transform: scale(.96); }
 
     /* ---------- Utilities ---------- */
@@ -311,7 +326,7 @@
 
     var bodyAvatar = cfg.avatar
       ? `<img class="wa-msg-avatar" src="${cfg.avatar}" alt="" aria-hidden="true" width="28" height="28">`
-      : `<span class="wa-msg-avatar" aria-hidden="true" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;background:${cfg.color}">${cfg.name.charAt(0).toUpperCase()}</span>`;
+      : `<span class="wa-msg-avatar" aria-hidden="true" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;background:var(--wa-color)">${cfg.name.charAt(0).toUpperCase()}</span>`;
 
     panelEl = html(`
       <div class="wa-panel" role="dialog" aria-label="Chat de WhatsApp" style="display:none">

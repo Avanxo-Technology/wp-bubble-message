@@ -55,7 +55,7 @@ Todos los parámetros se definen como atributos `data-*` en el tag `<script>`:
 | `data-footer-note` | `Se abre WhatsApp...` | Nota debajo del input |
 | `data-aria-open` | `Abrir chat` | Label de accesibilidad del botón |
 | `data-aria-close` | `Cerrar chat` | Label de accesibilidad al cerrar |
-| `data-font-family` | `system fonts` | Fuente usada en el widget |
+| `data-font-family` | *(auto)* | Fuente del widget. Si no se define, hereda la fuente del sitio automáticamente. |
 | `data-trigger-id` | *(none)* | ID de un elemento que, al hacerse visible, muestra el teaser |
 | `data-remember` | `false` | Si `true`, el teaser no vuelve a mostrar en la misma sesión |
 
@@ -109,6 +109,7 @@ Puedes tener varios bubbles en la misma página, cada uno con su propia configur
 - **Accesibilidad**: El widget incluye `role="dialog"`, `aria-expanded`, `aria-label` y `aria-live`.
 - **Reduced motion**: Desactiva animaciones si el usuario prefiere movimiento reducido.
 - **Sin dependencias**: JavaScript vanilla puro. No necesita jQuery, Alpine, ni ninguna librería.
+- **Fuente heredada**: El widget detecta automáticamente la `font-family` del sitio y la usa. Si necesitas forzar una fuente específica, usa `data-font-family`.
 
 ## Licencia
 
